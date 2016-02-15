@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 class DBAppException extends Exception {
 
@@ -20,7 +21,8 @@ class DBEngineException extends Exception {
 
 public class DBApp {
 
-	static String mainDirectory = "/home/ahmad_elsagheer/databases/";
+	private static int maxPageSize = 200;
+	private static String mainDirectory = "/home/ahmad_elsagheer/databases/";
 	private String dbName;
 	private File metadata;
 	
@@ -44,22 +46,57 @@ public class DBApp {
     }
 	
 	//check foreign key constraint
-//	private boolean validForeginKey(String tableName, String foreignKeyName, String foreginKeyType)
-//	{
-//		
-//	}
+	private boolean isValidForeginKey(String strTableName, String foreignKeyName, String foreginKeyType)
+	{
+		//implemented by soliman
+		return false;
+	}
+	
+	private String checkForeignKeys(String strTableName, Hashtable<String,String> htblColNameType, 
+            Hashtable<String,String> htblColNameRefs){
+		
+		for(Entry<String, String> entry: htblColNameRefs.entrySet())
+			if(!isValidForeginKey(strTableName, entry.getKey(), entry.getValue()))
+				return entry.getKey();
+		return null;
+	}
+	
+	private String checkColumnTypes(Hashtable<String,String> htblColNameType)
+	{
+		//implemented by soliman
+				return null;	
+	}
+	
+	private void addToMetadata(String strTableName, Hashtable<String,String> htblColNameType, 
+            Hashtable<String,String> htblColNameRefs, String strKeyColName)	{
+		
+	}
 
     public void createTable(String strTableName, Hashtable<String,String> htblColNameType, 
                             Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBAppException{
     	
+    	// A.check constraints
     	
-    	// check constraints
-//    	1. valid name 2. valid types 3. valid foregin keys
+      	//1.check for valid name
+    	File dir = new File(mainDirectory+dbName+strTableName);
+    	if(dir.exists())
+    		throw new DBAppException("There exists a table with this name.");
     	
-    	// add info to metadata
+    	//2.check for valid types
+    	String invalidColumnType = checkColumnTypes(htblColNameType);
+    	if(invalidColumnType != null)
+    		throw new DBAppException("Invalid column type: "+invalidColumnType + " references "+htblColNameType.get(invalidColumnType)+".");
     	
+    	//3.check for valid foreign keys
+    	String invalidForeignKey = checkForeignKeys(strTableName, htblColNameType, htblColNameRefs);
+    	if(invalidForeignKey != null)
+    		throw new DBAppException("Invalid foreign key: "+invalidForeignKey + " references "+htblColNameRefs.get(invalidForeignKey)+".");
     	
-    	// table directory + intial table page
+    	// B.add info to metadata
+    	addToMetadata(strTableName, htblColNameType, htblColNameRefs, strKeyColName);
+    	
+    	// C. create table directory and intial table page
+
     	
     	
     }
