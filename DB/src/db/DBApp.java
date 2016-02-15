@@ -1,11 +1,15 @@
 package db;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 class DBAppException extends Exception {
 
@@ -21,18 +25,30 @@ class DBEngineException extends Exception {
 
 public class DBApp {
 
-	private static int maxPageSize = 200;
-	private static String mainDirectory = "/home/ahmad_elsagheer/databases/";
+	
+	private static String mainDirectory = "databases/";
+	
+	
 	private String dbName;
 	private File metadata;
 	
 
-	public void init(String dbName) throws IOException{
+	public void init(String dbName, Integer MaximumRowsCountinPage) throws IOException{
 		
 		this.dbName = dbName;
+		
 		//directory for each db - change the absolute path
 		File dbDirectory = new File(mainDirectory+this.dbName);
 		dbDirectory.mkdirs();
+		
+		//initialize config file
+		Properties dbProps = new Properties();
+		dbProps.put("MaximumRowsCountinPage", MaximumRowsCountinPage.toString());
+		File config = new File(mainDirectory+"/config/DBApp.config");
+		config.createNewFile();
+		FileOutputStream fos = new FileOutputStream(config);
+		dbProps.store(fos, "DB Properties");
+		fos.close();
 		//initialize metadata file
 		this.metadata = new File(mainDirectory+this.dbName+"/metadata.csv");
 		if(this.metadata.createNewFile())
@@ -44,6 +60,22 @@ public class DBApp {
 			out.close();
 		}
     }
+	
+	public void addProperty(String key, String value) throws FileNotFoundException, IOException
+	{
+		File config = new File(mainDirectory+"/config/DBApp.config");
+		Properties dbProps = new Properties();
+			
+		FileInputStream fis = new FileInputStream(config);
+		dbProps.load(fis);
+		fis.close();
+		
+		dbProps.put(key, value);
+		
+		FileOutputStream fos = new FileOutputStream(config);
+		dbProps.store(fos, "Added property: " + key);
+		fos.close();
+	}
 	
 	//check foreign key constraint
 	private boolean isValidForeginKey(String strTableName, String foreignKeyName, String foreginKeyType)
@@ -69,7 +101,8 @@ public class DBApp {
 	
 	private void addToMetadata(String strTableName, Hashtable<String,String> htblColNameType, 
             Hashtable<String,String> htblColNameRefs, String strKeyColName)	{
-		
+	
+		//implement by soliman
 	}
 
     public void createTable(String strTableName, Hashtable<String,String> htblColNameType, 
@@ -96,42 +129,43 @@ public class DBApp {
     	addToMetadata(strTableName, htblColNameType, htblColNameRefs, strKeyColName);
     	
     	// C. create table directory and intial table page
-
+    	
     	
     	
     }
 
-    public void createIndex(String strTableName, String strColName)  throws DBAppException{
-    
-    }
+//    public void createIndex(String strTableName, String strColName)  throws DBAppException{
+//    
+//    }
 
     public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue)  throws DBAppException{
     
     }
 
-    public void updateTable(String strTableName, String strKey,
-                            Hashtable<String,Object> htblColNameValue)  throws DBAppException{
-    
-    }
+//    public void updateTable(String strTableName, String strKey,
+//                            Hashtable<String,Object> htblColNameValue)  throws DBAppException{
+//    
+//    }
 
 
-    public void deleteFromTable(String strTableName, Hashtable<String,Object> htblColNameValue, 
-                                String strOperator) throws DBEngineException{
-                                
-    }
+//    public void deleteFromTable(String strTableName, Hashtable<String,Object> htblColNameValue, 
+//                                String strOperator) throws DBEngineException{
+//                                
+//    }
 		
     public Iterator selectFromTable(String strTable,  Hashtable<String,Object> htblColNameValue, 
                                     String strOperator) throws DBEngineException{
-        return null;
+        
+    	return null;
     }
 
 	public static void main(String [] args) throws DBAppException, DBEngineException, IOException {
 	
 		// create a new DBApp
-//		DBApp myDB = new DBApp();
+		DBApp myDB = new DBApp();
 
 		// initialize it
-//		myDB.init("University");
+		myDB.init("University", 200);
 
 		// creating table "Faculty"
 //		Hashtable<String, String> fTblColNameType = new Hashtable<String, String>();

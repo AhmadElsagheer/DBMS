@@ -22,35 +22,18 @@ public class Table implements Serializable{
 		primaryKey = strKeyColName;
 		colTypes = htblColNameType;
 		colRefs = htblColNameRefs;
-		maxTuplesPerPage = calculatePageSize();
+//		maxTuplesPerPage = calculatePageSize();
 		curPageIndex = -1;
 		createDirectory();
 		createPage();
 	}
 	
-	private int calculatePageSize()
-	{
-		int tupleSize = 0;
-		for(String type : colTypes.values())
-			tupleSize += getTypeSize(type);
-		return 64000 / tupleSize;
-	}
+//	private int calculatePageSize()
+//	{
+//		
+//	}
 	
-	private int getTypeSize(String type)
-	{
-		if(type.equals("Integer"))
-			return 32;
-		if(type.equals("Double"))
-			return 64;
-		if(type.equals("String"))
-			return 255 * 8;
-		if(type.equals("Boolean"))
-			return 9 * 8;
-		if(type.equals("Date"))
-			return 12 * 8;
-		return -1; 	//invalid type
-	}
-	
+		
 	private void createDirectory()
 	{
     	File tableDir = new File(path);
