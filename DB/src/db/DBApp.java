@@ -1,6 +1,9 @@
 package db;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -9,30 +12,22 @@ import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 import java.util.Properties;
 
-class DBAppException extends Exception {
 
-	public DBAppException(String name)
-	{
-		super(name);
-	}
-}
-
-class DBEngineException extends Exception {
-
-}
 
 public class DBApp {
-
+	
 	
 	private static String mainDirectory = "databases/";
-	
+
 	
 	private String dbName;
 	private File metadata;
+	private File dbDirectory;
+	private TreeSet<String> dataTypes;
 	
-
 	public void init(String dbName, Integer MaximumRowsCountinPage) throws IOException{
 		
 		this.dbName = dbName;
@@ -59,8 +54,20 @@ public class DBApp {
 			out.flush();
 			out.close();
 		}
+		this.initDataTypes();
+
     }
 	
+	private void initDataTypes(){
+		dataTypes = new TreeSet<String>();
+		dataTypes.add("Integer");
+		dataTypes.add("String");
+		dataTypes.add("Boolean");
+		dataTypes.add("Date");
+		dataTypes.add("Double");
+	}
+
+		
 	public void addProperty(String key, String value) throws FileNotFoundException, IOException
 	{
 		File config = new File(mainDirectory+"/config/DBApp.config");
@@ -77,12 +84,27 @@ public class DBApp {
 		fos.close();
 	}
 	
-	//check foreign key constraint
-	private boolean isValidForeginKey(String strTableName, String foreignKeyName, String foreginKeyType)
+	// check for foreign key constrains 
+	
+	//Table Name, Column Name, Column Type, Key, Indexed, References
+	// 0        ,     1      ,      2 	  , 	3       ,     4
+	
+	private boolean isValidForeignKey(String tableName , String foreingkeyName , String foreignKeyType) throws IOException
 	{
-		//implemented by soliman
+		BufferedReader br = new BufferedReader(new FileReader(metadata));
+		
+		while(br.ready())
+		{
+			String [] data = br.readLine().split(",");
+			
+			if(tableName.equals(data[0]) && foreingkeyName.equals(data[1]) && foreignKeyType.equals(data[2]))
+				return true;
+		}
+		
 		return false;
 	}
+
+
 	
 	private String checkForeignKeys(String strTableName, Hashtable<String,String> htblColNameType, 
             Hashtable<String,String> htblColNameRefs){
@@ -93,18 +115,35 @@ public class DBApp {
 		return null;
 	}
 	
-	private String checkColumnTypes(Hashtable<String,String> htblColNameType)
+	
+	private String checkColumnTypes (Hashtable <String , String> htblColNameType)
 	{
-		//implemented by soliman
-				return null;	
+		for(Entry<String, String> entry:htblColNameType.entrySet())
+		{
+			String dataType = entry.getValue();
+			if(!dataTypes.contains(dataType)){
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 	
-	private void addToMetadata(String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs, String strKeyColName)	{
-	
-		//implement by soliman
+	private void addToMetaData(String strTableName,    Hashtable<String,String> htblColNameType, 
+                           Hashtable<String,String> htblColNameRefs, String strKeyColName) throws IOException
+	{
+		PrintWriter pr = new PrintWriter(new FileWriter(metadata));
+		for(Entry<String, String> entry:htblColNameType.entrySet()){
+			String colName = entry.getKey();
+			String colType = entry.getValue();
+			String refs = htblColNameRefs.get(colName);
+			boolean key = (colName == strKeyColName);
+			pr.println(strTableName+", " + colName + ", " + colType + ", " + key + ", " + "false" + ", " + refs);
+		}
+		pr.flush();
+		pr.close();
 	}
-
+	
+    
     public void createTable(String strTableName, Hashtable<String,String> htblColNameType, 
                             Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBAppException{
     	
@@ -134,40 +173,38 @@ public class DBApp {
     	
     }
 
-//    public void createIndex(String strTableName, String strColName)  throws DBAppException{
-//    
-//    }
+    public void createIndex(String strTableName, String strColName)  throws DBAppException{
+    
+    }
+	
 
-    public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue)  throws DBAppException{
+	 public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue)  throws DBAppException{
+
+	}
+
+    public void updateTable(String strTableName, String strKey,
+                            Hashtable<String,Object> htblColNameValue)  throws DBAppException{
     
     }
 
-//    public void updateTable(String strTableName, String strKey,
-//                            Hashtable<String,Object> htblColNameValue)  throws DBAppException{
-//    
-//    }
 
-
-//    public void deleteFromTable(String strTableName, Hashtable<String,Object> htblColNameValue, 
-//                                String strOperator) throws DBEngineException{
-//                                
-//    }
+    public void deleteFromTable(String strTableName, Hashtable<String,Object> htblColNameValue, 
+                                String strOperator) throws DBEngineException{
+                                
+    }
 		
     public Iterator selectFromTable(String strTable,  Hashtable<String,Object> htblColNameValue, 
                                     String strOperator) throws DBEngineException{
-        
-    	return null;
+        return null;
     }
 
 	public static void main(String [] args) throws DBAppException, DBEngineException, IOException {
-	
-		// create a new DBApp
+		// creat a new DBApp
 		DBApp myDB = new DBApp();
-
-		// initialize it
+//
+//		// initialize it
 		myDB.init("University", 200);
 
-		// creating table "Faculty"
 //		Hashtable<String, String> fTblColNameType = new Hashtable<String, String>();
 //		fTblColNameType.put("ID", "Integer");
 //		fTblColNameType.put("Name", "String");
@@ -187,7 +224,7 @@ public class DBApp {
 //		mTblColNameRefs.put("Faculty_ID", "Faculty.ID");
 //
 //		myDB.createTable("Major", mTblColNameType, mTblColNameRefs, "ID");
-//
+
 //		// creating table "Course"
 //
 //		Hashtable<String, String> coTblColNameType = new Hashtable<String, String>();

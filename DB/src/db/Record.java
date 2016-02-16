@@ -1,5 +1,3 @@
-package db;
-
 public class Record {
 
 
@@ -10,9 +8,9 @@ public class Record {
 		values = new Object[size];
 	}
 	
-	public void addValue(int idx, Object val)
+	public void addValue(int index , Object value)
 	{
-		values[idx] = val;
+		values[index] = value;
 	}
 	
 	public Object[] getValues()
