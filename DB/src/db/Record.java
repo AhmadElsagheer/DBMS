@@ -1,4 +1,5 @@
 package db;
+
 public class Record {
 
 
@@ -6,6 +7,7 @@ public class Record {
 		
 	public Record(int size)
 	{
+		
 		values = new Object[size];
 	}
 	
@@ -18,6 +20,7 @@ public class Record {
 	{
 		return values;
 	}
+	
 	
 	
 }
