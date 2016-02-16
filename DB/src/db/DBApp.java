@@ -25,11 +25,10 @@ public class DBApp {
 	
 	private String dbName;
 	private File metadata;
-	private File metdata;
 	private File dbDirectory;
 	private TreeSet<String> dataTypes;
 	
-	public void init(String dbName) throws IOException{
+	public void init(String dbName, Integer MaximumRowsCountinPage) throws IOException{
 		
 		this.dbName = dbName;
 		
@@ -92,7 +91,7 @@ public class DBApp {
 	
 	private boolean isValidForeignKey(String tableName , String foreingkeyName , String foreignKeyType) throws IOException
 	{
-		BufferedReader br = new BufferedReader(new FileReader(metdata));
+		BufferedReader br = new BufferedReader(new FileReader(metadata));
 		
 		while(br.ready())
 		{
@@ -132,7 +131,7 @@ public class DBApp {
 	private void addToMetaData(String strTableName,    Hashtable<String,String> htblColNameType, 
                            Hashtable<String,String> htblColNameRefs, String strKeyColName) throws IOException
 	{
-		PrintWriter pr = new PrintWriter(new FileWriter(metdata));
+		PrintWriter pr = new PrintWriter(new FileWriter(metadata));
 		for(Entry<String, String> entry:htblColNameType.entrySet()){
 			String colName = entry.getKey();
 			String colType = entry.getValue();
@@ -177,7 +176,11 @@ public class DBApp {
     public void createIndex(String strTableName, String strColName)  throws DBAppException{
     
     }
+	
 
+	 public void insertIntoTable(String strTableName, Hashtable<String,Object> htblColNameValue)  throws DBAppException{
+
+	}
 
     public void updateTable(String strTableName, String strKey,
                             Hashtable<String,Object> htblColNameValue)  throws DBAppException{
