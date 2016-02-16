@@ -1,10 +1,9 @@
-
 public class Record {
 
-	
-	private Object [] values;
-	
-	Record(int size)
+
+	private Object[] values;
+		
+	public Record(int size)
 	{
 		values = new Object[size];
 	}
@@ -14,7 +13,7 @@ public class Record {
 		values[index] = value;
 	}
 	
-	public Object [] getValues ()
+	public Object[] getValues()
 	{
 		return values;
 	}

@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 public class Table implements Serializable {
 
+	private String path;
 	private int maxTuplesPerPage;
 	private int curPageIndex;
 	private int curPageTuples;
@@ -21,8 +22,35 @@ public class Table implements Serializable {
 	private Hashtable<String, Integer> colIndex;
 
 	// constructor :
+	public Table(String path, String strTableName, Hashtable<String,String> htblColNameType, 
+            Hashtable<String,String> htblColNameRefs, String strKeyColName){
+		
+		this.path = path + "/" + strTableName + "/";
+		name = strTableName;
+		primaryKey = strKeyColName;
+		colTypes = htblColNameType;
+		colRefs = htblColNameRefs;
+//		maxTuplesPerPage = calculatePageSize();
+		curPageIndex = -1;
+		createDirectory();
+		createPage();
+	}
 
 	// add page
+	private void createDirectory()
+	{
+    	File tableDir = new File(path);
+    	tableDir.mkdir();
+
+	}
+	
+	private void createPage()
+	{
+		curPageIndex++;
+		curPageTuples = 0;
+		File newPage = new File(path);
+		
+	}
 
 	private boolean checkType(Hashtable<String, Object> htblColNameValue) {
 		for (Entry<String, Object> entry : htblColNameValue.entrySet()) {
@@ -134,4 +162,5 @@ public class Table implements Serializable {
 		return answer.iterator();
 	}
 
+	
 }
