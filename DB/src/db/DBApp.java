@@ -2,20 +2,18 @@ package db;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.TreeSet;
 import java.util.Properties;
-
-
+import java.util.TreeSet;
 
 public class DBApp {
 	
@@ -107,10 +105,10 @@ public class DBApp {
 
 	
 	private String checkForeignKeys(String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs){
+            Hashtable<String,String> htblColNameRefs) throws IOException{
 		
 		for(Entry<String, String> entry: htblColNameRefs.entrySet())
-			if(!isValidForeginKey(strTableName, entry.getKey(), entry.getValue()))
+			if(!isValidForeignKey(strTableName, entry.getKey(), entry.getValue()))
 				return entry.getKey();
 		return null;
 	}
@@ -145,7 +143,7 @@ public class DBApp {
 	
     
     public void createTable(String strTableName, Hashtable<String,String> htblColNameType, 
-                            Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBAppException{
+                            Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBAppException, IOException{
     	
     	// A.check constraints
     	
@@ -165,7 +163,7 @@ public class DBApp {
     		throw new DBAppException("Invalid foreign key: "+invalidForeignKey + " references "+htblColNameRefs.get(invalidForeignKey)+".");
     	
     	// B.add info to metadata
-    	addToMetadata(strTableName, htblColNameType, htblColNameRefs, strKeyColName);
+    	addToMetaData(strTableName, htblColNameType, htblColNameRefs, strKeyColName);
     	
     	// C. create table directory and intial table page
     	
