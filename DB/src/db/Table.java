@@ -2,8 +2,10 @@ package db;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Hashtable;
@@ -13,6 +15,11 @@ import java.util.Map.Entry;
 
 public class Table implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private static String tablesDir = "bin/db/tables/";
 	private String path;
 	private int maxTuplesPerPage;
 	private int curPageIndex;
@@ -22,22 +29,32 @@ public class Table implements Serializable {
 	private Hashtable<String, String> colTypes, colRefs;
 	private Hashtable<String, Integer> colIndex;
 
-	// constructor :
 	public Table(String path, String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs, String strKeyColName){
+            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage) throws IOException{
 		
-		this.path = path + "/" + strTableName + "/";
-		name = strTableName;
-		primaryKey = strKeyColName;
-		colTypes = htblColNameType;
-		colRefs = htblColNameRefs;
-//		maxTuplesPerPage = calculatePageSize();
-		curPageIndex = -1;
+		this.path = path + strTableName + "/";
+		this.name = strTableName;
+		this.primaryKey = strKeyColName;
+		this.colTypes = htblColNameType;
+		this.colRefs = htblColNameRefs;
+		this.maxTuplesPerPage = maxTuplesPerPage;
+		this.curPageIndex = -1;
 		createDirectory();
 		createPage();
+		saveTable();
+	}
+	
+	public void saveTable() throws IOException
+	{
+		File f = new File(tablesDir+tableName+".class");
+		if(f.exists())
+			f.delete();
+		f.createNewFile();
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+    	oos.writeObject(this);
+    	oos.close();
 	}
 
-	// add page
 	private void createDirectory()
 	{
     	File tableDir = new File(path);
@@ -50,18 +67,15 @@ public class Table implements Serializable {
 		curPageIndex++;
 		curPageTuples = 0;
 		File newPage = new File(path);
-		
-	}
-
-	private boolean checkType(Hashtable<String, Object> htblColNameValue) {
-		for (Entry<String, Object> entry : htblColNameValue.entrySet()) {
-			String colName = entry.getKey();
-			Object value = entry.getValue();
-			if (!checkType(value, colTypes.get(colName)))
-				return false;
+		try 
+		{
+			newPage.createNewFile();
+		} 
+		catch (IOException e) 
+		{	
+			e.printStackTrace();
 		}
-
-		return true;
+		
 	}
 
 	private boolean checkType(Object value, String type) {
@@ -83,27 +97,6 @@ public class Table implements Serializable {
 				return false;
 		return true;
 
-	}
-
-	private boolean checkColNames(Hashtable<String, Object> htblColNameValue) {
-		for (Entry<String, Object> entry : htblColNameValue.entrySet()) {
-			String colName = entry.getKey();
-			if (!colTypes.containsKey(colName))
-				return false;
-		}
-		return true;
-	}
-
-	private boolean insert(Hashtable<String, Object> htblColNameValue) {
-
-		// check colNames
-		// check Types
-
-		return true;
-		// check colNames
-		// check Type
-		// check primary keys
-		// check foreign keys
 	}
 
 	private boolean checkOr(Hashtable<String, Object> htblColNameValue, Object[] values) {
@@ -132,7 +125,7 @@ public class Table implements Serializable {
 		return true;
 	}
 
-	private Iterator select(Hashtable<String, Object> htblColNameValue, String strOperator)
+	public Iterator<Record> select(Hashtable<String, Object> htblColNameValue, String strOperator)
 			throws FileNotFoundException, IOException, ClassNotFoundException {
 		
 		boolean isOr = strOperator.equals("OR");
