@@ -15,9 +15,7 @@ updated with current date/time every time a row is updated.
 
 Indices
 12) You are required to use B+ trees to support creating primary and secondary dense indices. Note that a B+ tree stores in its’ leafs pointers (handles in Java terminology) to the data objects.
-
 13) You are going to implement your own B+ Tree data structure.
-
 14) Once a table is created, you need to create a primary index on the key of that table.
 15) You should update existing relevant B+ trees when a tuple is inserted/deleted.
 16) If a secondary index is created after a table has been populated, you have no option but to
