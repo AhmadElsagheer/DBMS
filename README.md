@@ -4,7 +4,8 @@ Database Management System
 
 #Assignment 1: Database engine
 
-#Upcoming submissions
+Upcoming submissions
+--------------------
 Deletion of data will result in fragmentation within a page; do not worry about that in your
 solution.
 
