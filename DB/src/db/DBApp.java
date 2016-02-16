@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -19,12 +20,10 @@ public class DBApp {
 	
 	
 	private static String mainDirectory = "databases/";
-
-	
 	private String dbName;
 	private File metadata;
-	private File dbDirectory;
 	private TreeSet<String> dataTypes;
+	private Properties dbProps; 
 	
 	public void init(String dbName, Integer MaximumRowsCountinPage) throws IOException{
 		
@@ -34,14 +33,19 @@ public class DBApp {
 		File dbDirectory = new File(mainDirectory+this.dbName);
 		dbDirectory.mkdirs();
 		
+		//directory for storing table objects
+		File tablesDir = new File("bin/db/tables/");
+		tablesDir.mkdirs();
+		
 		//initialize config file
-		Properties dbProps = new Properties();
+		dbProps = new Properties();
 		dbProps.put("MaximumRowsCountinPage", MaximumRowsCountinPage.toString());
 		File config = new File(mainDirectory+"/config/DBApp.config");
 		config.createNewFile();
 		FileOutputStream fos = new FileOutputStream(config);
 		dbProps.store(fos, "DB Properties");
 		fos.close();
+		
 		//initialize metadata file
 		this.metadata = new File(mainDirectory+this.dbName+"/metadata.csv");
 		if(this.metadata.createNewFile())
@@ -83,22 +87,20 @@ public class DBApp {
 	}
 	
 	// check for foreign key constrains 
-	
-	//Table Name, Column Name, Column Type, Key, Indexed, References
-	// 0        ,     1      ,      2 	  , 	3       ,     4
-	
 	private boolean isValidForeignKey(String tableName , String foreingkeyName , String foreignKeyType) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader(metadata));
-		
 		while(br.ready())
 		{
 			String [] data = br.readLine().split(",");
 			
 			if(tableName.equals(data[0]) && foreingkeyName.equals(data[1]) && foreignKeyType.equals(data[2]))
+			{	
+				br.close();
 				return true;
+			}
 		}
-		
+		br.close();
 		return false;
 	}
 
@@ -145,7 +147,7 @@ public class DBApp {
     public void createTable(String strTableName, Hashtable<String,String> htblColNameType, 
                             Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBAppException, IOException{
     	
-    	// A.check constraints
+    	// A.Check constraints
     	
       	//1.check for valid name
     	File dir = new File(mainDirectory+dbName+strTableName);
@@ -162,13 +164,16 @@ public class DBApp {
     	if(invalidForeignKey != null)
     		throw new DBAppException("Invalid foreign key: "+invalidForeignKey + " references "+htblColNameRefs.get(invalidForeignKey)+".");
     	
-    	// B.add info to metadata
+    	// B. Add info to metadata
     	addToMetaData(strTableName, htblColNameType, htblColNameRefs, strKeyColName);
     	
-    	// C. create table directory and intial table page
+    	// C. add TouchDate
+    	htblColNameType.put("TouchDate", "Date");
     	
-    	
-    	
+    	// D. Create new table and store the table object in a binary file
+    	int maxTuplesPerPage = Integer.parseInt(dbProps.getProperty("MaximumRowsCountinPage"));
+    	new Table(mainDirectory, strTableName, htblColNameType, htblColNameRefs, strKeyColName, maxTuplesPerPage);
+    	System.out.println("Table is created successfully: " + strTableName);
     }
 
     public void createIndex(String strTableName, String strColName)  throws DBAppException{
