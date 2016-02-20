@@ -324,7 +324,7 @@ public class Table implements Serializable {
 			for (int i = 0; i < page.size(); i++) {
 				Record r = page.get(i);
 				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r));
-//					deleteRecord(r);
+					page.removeRecord(i);
 			}
 		}
 	}

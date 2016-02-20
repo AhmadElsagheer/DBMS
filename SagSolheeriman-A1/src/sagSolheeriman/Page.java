@@ -58,6 +58,12 @@ public class Page implements Serializable{
 		return true;
 	}
 	
+	public void removeRecord(int index) throws IOException
+	{
+		records[index] = null;
+		save();
+	}
+	
 	/**
 	 * save the page permanently on a secondary storage
 	 * @throws IOException If an I/O error occurred
