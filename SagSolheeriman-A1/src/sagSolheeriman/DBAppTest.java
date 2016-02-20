@@ -1,5 +1,6 @@
 package sagSolheeriman;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Random;
@@ -26,6 +27,10 @@ public class DBAppTest {
 	{
 //		tests();
 //		customize tests here...
+	}
+	
+	public static void testDelete() throws IOException, DBEngineException, ClassNotFoundException
+	{
 //		1. Start a session
 		DBApp myDB = new DBApp();
 		
