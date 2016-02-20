@@ -2,6 +2,7 @@ package sagSolheeriman;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -284,7 +285,7 @@ public class Table implements Serializable {
 	 * Select all records from the table that matches the specified column name-value pairs
 	 * with a given conditional operator (AND or OR)
 	 * @param htblColNameValue the column name-value pairs to which records will be compared
-	 * @param strOperator the conditional operator to be exectuted ("AND, "OR" only)
+	 * @param strOperator the conditional operator to be executed ("AND, "OR" only)
 	 * @return an iterator pointing to the first record in the result set
 	 * @throws IOException If an I/O error occurred
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
@@ -304,13 +305,45 @@ public class Table implements Serializable {
 			for(int i = 0; i < p.size(); ++i)
 			{
 				Record r = p.get(i);
-				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r))
+				
+				if(( r != null && (isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r))))
 					answer.add(r);
 			}
 			ois.close();
 		}
 		return answer.listIterator();
 	}
+	
+	/** delete all records from the table that matches the specified column name-value pairs
+	 * with a given conditional operator (AND or OR)
+	 * @param htblColNameValue the column name-value pairs to which records will be compared
+	 * @param strOperator the conditional operator to be exectuted ("AND, "OR" only)
+	 * @throws IOException If an I/O error occurred
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 */
+	
+	public int delete(Hashtable<String,Object> htblColNameValue, 
+    		String strOperator) throws IOException, ClassNotFoundException{
+		boolean isOr = strOperator.equals("OR");
+		int deletedRecords = 0;
+		ObjectInputStream ois;
+		for (int index = 0; index <= curPageIndex; index++) {
+			File file = new File(path + tableName + "_" + index + ".class");
+			ois = new ObjectInputStream(new FileInputStream(file));
+			Page page = (Page) ois.readObject();
+			for (int i = 0; i < page.size(); i++) {
+				Record r = page.get(i);
+				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r)) {
+					page.removeRecord(i);
+					deletedRecords++;
+				}
+			}
+				
+		}
+		return deletedRecords;
+	}
+	
+	
 	
 	/**
 	 * Get the column names in the order the are indexed

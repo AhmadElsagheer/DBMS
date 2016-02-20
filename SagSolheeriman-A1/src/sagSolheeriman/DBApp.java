@@ -333,11 +333,27 @@ public class DBApp {
     	
     	//To be implemented in submission 2
     }
-
+    
+    /**
+     * delete all records from the table that matches the specified column name-value pairs
+	 * with a given conditional operator (AND or OR) 
+     * @param strTableName the name of the table to select from
+     * @param htblColNameValue the column name-value pairs to which records will be compared
+     * @param strOperator the conditional operator to be exectuted ("AND, "OR" only)
+     * @throws DBEngineException if the table does not exist
+     * @throws FileNotFoundException If an error occurred in the stored table file
+     * @throws ClassNotFoundException If an error occurred in the stored table pages format
+     * @throws IOException If an I/O error occurred
+     */
 
     public void deleteFromTable(String strTableName, Hashtable<String,Object> htblColNameValue, 
-    		String strOperator) throws DBEngineException{
-    	//To be implemented in submission 2
+    		String strOperator) throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException{
+    	Table table = getTable(strTableName);
+    	if(table == null)
+    		throw new DBEngineException("Table \"" + strTableName+"\" does not exist");
+    	int deletedRecords = table.delete(htblColNameValue, strOperator);
+    	System.out.println(deletedRecords + " was deleted !");
+    	
     }
 
     /**
@@ -371,10 +387,14 @@ public class DBApp {
      */
     public void printResult(Iterator<Record> itr, String strTableName) throws FileNotFoundException, ClassNotFoundException, IOException
     {
+    	if(!itr.hasNext())
+    		System.out.println("No records exist");
+    	else{
     	System.out.println(getTable(strTableName).getTableHeader());
     	while(itr.hasNext()) {
     		System.out.println(itr.next());
     	}
+    }
     }
 
 }
