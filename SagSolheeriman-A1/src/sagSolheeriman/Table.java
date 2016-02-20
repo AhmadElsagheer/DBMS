@@ -2,6 +2,7 @@ package sagSolheeriman;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -311,6 +312,24 @@ public class Table implements Serializable {
 		}
 		return answer.listIterator();
 	}
+	
+	public void delete(Hashtable<String,Object> htblColNameValue, 
+    		String strOperator) throws FileNotFoundException, IOException, ClassNotFoundException{
+		boolean isOr = strOperator.equals("OR");
+		ObjectInputStream ois;
+		for (int index = 0; index <= curPageIndex; index++) {
+			File file = new File(path + tableName + "_" + index + ".class");
+			ois = new ObjectInputStream(new FileInputStream(file));
+			Page page = (Page) ois.readObject();
+			for (int i = 0; i < page.size(); i++) {
+				Record r = page.get(i);
+				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r));
+//					deleteRecord(r);
+			}
+		}
+	}
+	
+	
 	
 	/**
 	 * Get the column names in the order the are indexed

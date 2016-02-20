@@ -336,8 +336,11 @@ public class DBApp {
 
 
     public void deleteFromTable(String strTableName, Hashtable<String,Object> htblColNameValue, 
-    		String strOperator) throws DBEngineException{
-    	//To be implemented in submission 2
+    		String strOperator) throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException{
+    	Table table = getTable(strTableName);
+    	if(table == null)
+    		throw new DBEngineException("Table \"" + strTableName+"\" does not exist");
+    	
     }
 
     /**
