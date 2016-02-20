@@ -25,6 +25,7 @@ public class DBAppTest {
 	
 	public static void main(String [] args) throws Exception 
 	{
+		
 //		1. Start a session
 		DBApp myDB = new DBApp();
 		tests(myDB);
