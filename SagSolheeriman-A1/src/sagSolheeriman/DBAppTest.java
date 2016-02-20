@@ -1,5 +1,6 @@
 package sagSolheeriman;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Random;
@@ -24,7 +25,6 @@ public class DBAppTest {
 	
 	public static void main(String [] args) throws Exception 
 	{
-
 //		1. Start a session
 		DBApp myDB = new DBApp();
 		tests(myDB);
@@ -205,4 +205,22 @@ public class DBAppTest {
 		myDB.printResult(myDB.selectFromTable("Major", new Hashtable<String, Object>(), ""), "Major");
 		
 	}
+	
+
+	public static void testDelete(DBApp myDB) throws IOException, DBEngineException, ClassNotFoundException
+	{		
+//		Select the record to be deleted from table "Faculty"
+		Hashtable<String,Object> ftblColNameValue4 = new Hashtable<String,Object>();
+		ftblColNameValue4.put("Name", "Management Technology");
+		myDB.printResult(myDB.selectFromTable("Faculty", ftblColNameValue4, "AND"), "Faculty");
+		
+//		Delete from table "Faculty" :
+		Hashtable<String,Object> ftblColNameValue3 = new Hashtable<String,Object>();
+		ftblColNameValue3.put("Name", "Management Technology");
+		myDB.deleteFromTable("Faculty", ftblColNameValue3, "AND");
+		
+//		Select from table "Faculty" the deleted record :
+		myDB.printResult(myDB.selectFromTable("Faculty", ftblColNameValue4, "AND"), "Faculty");
+	}
+
 }

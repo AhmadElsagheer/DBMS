@@ -59,6 +59,18 @@ public class Page implements Serializable{
 	}
 	
 	/**
+	 * Delete a record from the page at specified index
+	 * @param index the index of the record in the page to be deleted
+	 * @throws IOException If an I/O error occurred
+	 */
+	
+	public void removeRecord(int index) throws IOException
+	{
+		records[index] = null;
+		save();
+	}
+	
+	/**
 	 * save the page permanently on a secondary storage
 	 * @throws IOException If an I/O error occurred
 	 */
