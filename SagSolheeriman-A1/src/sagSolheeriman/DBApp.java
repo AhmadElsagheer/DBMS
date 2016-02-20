@@ -338,7 +338,7 @@ public class DBApp {
      * @throws ClassNotFoundException If an error occurred in the stored table pages format
      * @throws IOException If an I/O error occurred
      */
-    public void updateTable(String strTableName, String strKey,
+    public void updateTable(String strTableName, Object strKey,
     		Hashtable<String,Object> htblColNameValue)  throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException{
     	
     	Table table = getTable(strTableName);
