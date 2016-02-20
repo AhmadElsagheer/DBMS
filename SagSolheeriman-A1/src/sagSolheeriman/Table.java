@@ -238,6 +238,7 @@ public class Table implements Serializable {
 				{
 					for(Entry<String, Object> entry: htblColNameValue.entrySet())
 						r.addValue(colIndex.get(entry.getKey()), entry.getValue());
+					r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
 					p.save();
 					ois.close();
 					return true;
