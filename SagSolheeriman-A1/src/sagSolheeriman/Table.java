@@ -305,7 +305,8 @@ public class Table implements Serializable {
 			for(int i = 0; i < p.size(); ++i)
 			{
 				Record r = p.get(i);
-				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r))
+				
+				if(( r != null && (isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r))))
 					answer.add(r);
 			}
 			ois.close();

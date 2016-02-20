@@ -387,10 +387,14 @@ public class DBApp {
      */
     public void printResult(Iterator<Record> itr, String strTableName) throws FileNotFoundException, ClassNotFoundException, IOException
     {
+    	if(!itr.hasNext())
+    		System.out.println("No records exist");
+    	else{
     	System.out.println(getTable(strTableName).getTableHeader());
     	while(itr.hasNext()) {
     		System.out.println(itr.next());
     	}
+    }
     }
 
 }
