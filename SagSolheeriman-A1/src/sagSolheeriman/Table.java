@@ -2,6 +2,7 @@ package sagSolheeriman;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -150,6 +151,36 @@ public class Table implements Serializable {
 				throw new DBEngineException("Type mismatch on column "+ colName);
 		}
 	}
+	
+	/**
+	 * check if the given referencing values are valid for query operations
+	 * @param htblColNameValue some columns with there values
+	 * @throws FileNotFoundException If an error occurred in the stored table file
+	 * @throws DBEngineException If columns, foreign keys or the primary key are not valid
+	 * @throws IOException If an I/O error occurred
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 */
+	private void checkForeignKeyes(Hashtable<String, Object> htblColNameValue) throws FileNotFoundException, IOException, ClassNotFoundException, DBEngineException
+	{
+		for (Entry<String, Object> entry : htblColNameValue.entrySet()) {
+			String referencedColumn = colRefs.get(entry.getKey());
+
+			if (referencedColumn != null) 
+			{
+				String[] tokens = referencedColumn.split("\\.");
+//				TableName.colName
+				String tableName = tokens[0];	//TableName
+				String colName = tokens[1];		//colName
+
+				ObjectInputStream ois = new ObjectInputStream(
+						new FileInputStream(new File(path +"../" + tableName +"/" + tableName + ".class")));
+				Table fetchedTable = (Table) ois.readObject();
+				ois.close();
+				if (!fetchedTable.checkRecordExists(colName, entry.getValue()))
+					throw new DBEngineException("Invalid value for the foreign key: " + entry.getKey() + " = " + entry.getValue());
+			}
+		}
+	}
 
 	/**
 	 * @param htblColNameValue
@@ -173,24 +204,7 @@ public class Table implements Serializable {
 	
 		
 //		3. check the foreign keys
-		for (Entry<String, Object> entry : htblColNameValue.entrySet()) {
-			String referencedColumn = colRefs.get(entry.getKey());
-
-			if (referencedColumn != null) 
-			{
-				String[] tokens = referencedColumn.split("\\.");
-//				TableName.colName
-				String tableName = tokens[0];	//TableName
-				String colName = tokens[1];		//colName
-
-				ObjectInputStream ois = new ObjectInputStream(
-						new FileInputStream(new File(path +"../" + tableName +"/" + tableName + ".class")));
-				Table fetchedTable = (Table) ois.readObject();
-				ois.close();
-				if (!fetchedTable.checkRecordExists(colName, entry.getValue()))
-					throw new DBEngineException("Invalid value for the foreign key: " + entry.getKey() + " = " + entry.getValue());
-			}
-		}
+		checkForeignKeyes(htblColNameValue);
 
 //		4. add the record
 		Record r = new Record(numOfColumns);
@@ -217,13 +231,21 @@ public class Table implements Serializable {
 	 */
 	public boolean update(Object strKey, Hashtable<String, Object> htblColNameValue) throws DBEngineException, ClassNotFoundException, IOException {
 		
+//		1. check column names and types
+		checkColumns(htblColNameValue);
+		
+//		2. check for primary key
 		Object newPrimaryKey = htblColNameValue.get(primaryKey);
-		if(newPrimaryKey != null)	//update query needs to change the primary key
+		if(newPrimaryKey != null)
 		{
 			//check that the new primary key does not exist
 			if (checkRecordExists(primaryKey, newPrimaryKey))
 				throw new DBEngineException("Primary key is already used before");
 		}
+		
+//		3. check the foreign keys
+		checkForeignKeyes(htblColNameValue);
+		
 		int primaryKeyIndex = colIndex.get(primaryKey);
 		ObjectInputStream ois;
 		for (int index = 0; index <= curPageIndex; index++) {
