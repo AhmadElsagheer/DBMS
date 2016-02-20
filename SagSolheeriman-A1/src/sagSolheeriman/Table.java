@@ -321,9 +321,10 @@ public class Table implements Serializable {
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
 	 */
 	
-	public void delete(Hashtable<String,Object> htblColNameValue, 
+	public int delete(Hashtable<String,Object> htblColNameValue, 
     		String strOperator) throws IOException, ClassNotFoundException{
 		boolean isOr = strOperator.equals("OR");
+		int deletedRecords = 0;
 		ObjectInputStream ois;
 		for (int index = 0; index <= curPageIndex; index++) {
 			File file = new File(path + tableName + "_" + index + ".class");
@@ -331,10 +332,14 @@ public class Table implements Serializable {
 			Page page = (Page) ois.readObject();
 			for (int i = 0; i < page.size(); i++) {
 				Record r = page.get(i);
-				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r));
+				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r)) {
 					page.removeRecord(i);
+					deletedRecords++;
+				}
 			}
+				
 		}
+		return deletedRecords;
 	}
 	
 	
