@@ -205,6 +205,48 @@ public class Table implements Serializable {
 		return true;
 
 	}
+	
+	/**
+	 * Update the record that has the specified primary key with the given set of values
+	 * @param strKey the primary key of the record to be updated
+	 * @param htblColNameValue the set of columns associated with the new values to be updated
+	 * @return a boolean indicating whether the update is successful or not
+	 * @throws DBEngineException if the primary key to be updated, however, it's already used
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 * @throws IOException If an I/O error occurred
+	 */
+	public boolean update(String strKey, Hashtable<String, Object> htblColNameValue) throws DBEngineException, ClassNotFoundException, IOException {
+		
+		Object newPrimaryKey = htblColNameValue.get(primaryKey);
+		if(newPrimaryKey != null)	//update query needs to change the primary key
+		{
+			//check that the new primary key does not exist
+			if (checkRecordExists(primaryKey, newPrimaryKey))
+				throw new DBEngineException("Primary key is already used before");
+		}
+		int primaryKeyIndex = colIndex.get(primaryKey);
+		ObjectInputStream ois;
+		for (int index = 0; index <= curPageIndex; index++) {
+			File f = new File(path + tableName + "_" + index+".class");
+			
+	    	ois = new ObjectInputStream(new FileInputStream(f));
+	    	Page p = (Page) ois.readObject();
+			for(int i = 0; i < p.size(); ++i)
+			{
+				Record r = p.get(i);
+				if(r != null && r.get(primaryKeyIndex).equals(strKey))
+				{
+					for(Entry<String, Object> entry: htblColNameValue.entrySet())
+						r.addValue(colIndex.get(entry.getKey()), entry.getValue());
+					p.save();
+					ois.close();
+					return true;
+				}
+			}
+			ois.close();
+		}
+		return false;
+	}
 
 	/**
 	 * Add a new record to the table

@@ -327,11 +327,25 @@ public class DBApp {
     		throw new DBEngineException("Insertion in table \""+strTableName+"\" failed");
     }
 
-
+    
+    /**
+     * Update the record that match the given primary key in the specified table with the given set of values
+     * @param strTableName the table whose record to be updated
+     * @param strKey the primary key of the target record
+     * @param htblColNameValue the set of columns associated with the new values to be updated
+     * @throws DBEngineException if the table does not exist or the update failed
+     * @throws FileNotFoundException If an error occurred in the stored table file
+     * @throws ClassNotFoundException If an error occurred in the stored table pages format
+     * @throws IOException If an I/O error occurred
+     */
     public void updateTable(String strTableName, String strKey,
-    		Hashtable<String,Object> htblColNameValue)  throws DBEngineException{
+    		Hashtable<String,Object> htblColNameValue)  throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException{
     	
-    	//To be implemented in submission 2
+    	Table table = getTable(strTableName);
+    	if(table == null)
+    		throw new DBEngineException("Table \""+strTableName+"\" does not exist");
+    	if(!table.update(strKey, htblColNameValue))
+    		System.out.println("Update in table \""+strTableName+"\" failed");
     }
 
 
