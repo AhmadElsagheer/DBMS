@@ -24,15 +24,16 @@ public class DBAppTest {
 	
 	public static void main(String [] args) throws Exception 
 	{
-		tests();
-//		customize tests here...
-	}
-	
-	public static void tests() throws Exception
-	{
 
 //		1. Start a session
 		DBApp myDB = new DBApp();
+		tests(myDB);
+		testUpdate(myDB);
+//		customize tests here...	
+	}
+	
+	public static void tests(DBApp myDB) throws Exception
+	{
 		
 //		2. Create a new database
 		myDB.init("University", 200);
@@ -190,5 +191,18 @@ public class DBAppTest {
 		System.out.printf("Time for query = %d ms\n", endTime - startTime);
 		myDB.printResult(myIt4, "Course");
 
+	}
+	
+	
+	public static void testUpdate(DBApp myDB) throws Exception
+	{
+
+		myDB.printResult(myDB.selectFromTable("Major", new Hashtable<String, Object>(), ""), "Major");
+		Hashtable<String, Object> hh = new Hashtable<String, Object>();
+		hh.put("Name", "m100");
+		hh.put("Faculty_ID", 500);
+		myDB.updateTable("Major", 7, hh);
+		myDB.printResult(myDB.selectFromTable("Major", new Hashtable<String, Object>(), ""), "Major");
+		
 	}
 }
