@@ -151,6 +151,36 @@ public class Table implements Serializable {
 				throw new DBEngineException("Type mismatch on column "+ colName);
 		}
 	}
+	
+	/**
+	 * check if the given referencing values are valid for query operations
+	 * @param htblColNameValue some columns with there values
+	 * @throws FileNotFoundException If an error occurred in the stored table file
+	 * @throws DBEngineException If columns, foreign keys or the primary key are not valid
+	 * @throws IOException If an I/O error occurred
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 */
+	private void checkForeignKeyes(Hashtable<String, Object> htblColNameValue) throws FileNotFoundException, IOException, ClassNotFoundException, DBEngineException
+	{
+		for (Entry<String, Object> entry : htblColNameValue.entrySet()) {
+			String referencedColumn = colRefs.get(entry.getKey());
+
+			if (referencedColumn != null) 
+			{
+				String[] tokens = referencedColumn.split("\\.");
+//				TableName.colName
+				String tableName = tokens[0];	//TableName
+				String colName = tokens[1];		//colName
+
+				ObjectInputStream ois = new ObjectInputStream(
+						new FileInputStream(new File(path +"../" + tableName +"/" + tableName + ".class")));
+				Table fetchedTable = (Table) ois.readObject();
+				ois.close();
+				if (!fetchedTable.checkRecordExists(colName, entry.getValue()))
+					throw new DBEngineException("Invalid value for the foreign key: " + entry.getKey() + " = " + entry.getValue());
+			}
+		}
+	}
 
 	/**
 	 * @param htblColNameValue
@@ -174,24 +204,7 @@ public class Table implements Serializable {
 	
 		
 //		3. check the foreign keys
-		for (Entry<String, Object> entry : htblColNameValue.entrySet()) {
-			String referencedColumn = colRefs.get(entry.getKey());
-
-			if (referencedColumn != null) 
-			{
-				String[] tokens = referencedColumn.split("\\.");
-//				TableName.colName
-				String tableName = tokens[0];	//TableName
-				String colName = tokens[1];		//colName
-
-				ObjectInputStream ois = new ObjectInputStream(
-						new FileInputStream(new File(path +"../" + tableName +"/" + tableName + ".class")));
-				Table fetchedTable = (Table) ois.readObject();
-				ois.close();
-				if (!fetchedTable.checkRecordExists(colName, entry.getValue()))
-					throw new DBEngineException("Invalid value for the foreign key: " + entry.getKey() + " = " + entry.getValue());
-			}
-		}
+		checkForeignKeyes(htblColNameValue);
 
 //		4. add the record
 		Record r = new Record(numOfColumns);
@@ -205,6 +218,57 @@ public class Table implements Serializable {
 		addRecord(r);
 		return true;
 
+	}
+	
+	/**
+	 * Update the record that has the specified primary key with the given set of values
+	 * @param strKey the primary key of the record to be updated
+	 * @param htblColNameValue the set of columns associated with the new values to be updated
+	 * @return a boolean indicating whether the update is successful or not
+	 * @throws DBEngineException if the primary key to be updated, however, it's already used
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 * @throws IOException If an I/O error occurred
+	 */
+	public boolean update(Object strKey, Hashtable<String, Object> htblColNameValue) throws DBEngineException, ClassNotFoundException, IOException {
+		
+//		1. check column names and types
+		checkColumns(htblColNameValue);
+		
+//		2. check for primary key
+		Object newPrimaryKey = htblColNameValue.get(primaryKey);
+		if(newPrimaryKey != null)
+		{
+			//check that the new primary key does not exist
+			if (checkRecordExists(primaryKey, newPrimaryKey))
+				throw new DBEngineException("Primary key is already used before");
+		}
+		
+//		3. check the foreign keys
+		checkForeignKeyes(htblColNameValue);
+		
+		int primaryKeyIndex = colIndex.get(primaryKey);
+		ObjectInputStream ois;
+		for (int index = 0; index <= curPageIndex; index++) {
+			File f = new File(path + tableName + "_" + index+".class");
+			
+	    	ois = new ObjectInputStream(new FileInputStream(f));
+	    	Page p = (Page) ois.readObject();
+			for(int i = 0; i < p.size(); ++i)
+			{
+				Record r = p.get(i);
+				if(r != null && r.get(primaryKeyIndex).equals(strKey))
+				{
+					for(Entry<String, Object> entry: htblColNameValue.entrySet())
+						r.addValue(colIndex.get(entry.getKey()), entry.getValue());
+					r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
+					p.save();
+					ois.close();
+					return true;
+				}
+			}
+			ois.close();
+		}
+		return false;
 	}
 
 	/**

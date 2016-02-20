@@ -25,54 +25,16 @@ public class DBAppTest {
 	
 	public static void main(String [] args) throws Exception 
 	{
-//		tests();
-//		customize tests here...
-	}
-	
-	public static void testDelete() throws IOException, DBEngineException, ClassNotFoundException
-	{
+		
 //		1. Start a session
 		DBApp myDB = new DBApp();
-		
-//		2. Create a new database
-		myDB.init("University", 200);
-
-//		3. Create table "Faculty"
-		Hashtable<String, String> fTblColNameType = new Hashtable<String, String>();
-		fTblColNameType.put("ID", "Integer");
-		fTblColNameType.put("Name", "String");
-		Hashtable<String, String> fTblColNameRefs = new Hashtable<String, String>();
-		myDB.createTable("Faculty", fTblColNameType, fTblColNameRefs, "ID");
-		
-//		4.Insert in table "Faculty"
-		Hashtable<String,Object> ftblColNameValue1 = new Hashtable<String,Object>();
-		ftblColNameValue1.put("ID", 1);
-		ftblColNameValue1.put("Name", "Media Engineering and Technology");
-		myDB.insertIntoTable("Faculty", ftblColNameValue1);
-
-		Hashtable<String,Object> ftblColNameValue2 = new Hashtable<String,Object>();
-		ftblColNameValue2.put("ID", 2);
-		ftblColNameValue2.put("Name", "Management Technology");
-		myDB.insertIntoTable("Faculty", ftblColNameValue2);
-		
-//		5.Select the record to be deleted from table "Faculty"
-		Hashtable<String,Object> ftblColNameValue4 = new Hashtable<String,Object>();
-		ftblColNameValue4.put("Name", "Management Technology");
-		myDB.printResult(myDB.selectFromTable("Faculty", ftblColNameValue4, "AND"), "Faculty");
-//		6.delete from table "Faculty" :
-		Hashtable<String,Object> ftblColNameValue3 = new Hashtable<String,Object>();
-		ftblColNameValue3.put("Name", "Management Technology");
-		myDB.deleteFromTable("Faculty", ftblColNameValue3, "AND");
-		
-//		7.select from table "Faculty" the deleted record : (throws null pointer exception : to be handled)
-		myDB.printResult(myDB.selectFromTable("Faculty", ftblColNameValue4, "AND"), "Faculty");
+		tests(myDB);
+		testUpdate(myDB);
+//		customize tests here...	
 	}
 	
-	public static void tests() throws Exception
+	public static void tests(DBApp myDB) throws Exception
 	{
-
-//		1. Start a session
-		DBApp myDB = new DBApp();
 		
 //		2. Create a new database
 		myDB.init("University", 200);
@@ -231,4 +193,35 @@ public class DBAppTest {
 		myDB.printResult(myIt4, "Course");
 
 	}
+	
+	
+	public static void testUpdate(DBApp myDB) throws Exception
+	{
+
+		myDB.printResult(myDB.selectFromTable("Major", new Hashtable<String, Object>(), ""), "Major");
+		Hashtable<String, Object> hh = new Hashtable<String, Object>();
+		hh.put("Name", "m100");
+		hh.put("Faculty_ID", 500);
+		myDB.updateTable("Major", 7, hh);
+		myDB.printResult(myDB.selectFromTable("Major", new Hashtable<String, Object>(), ""), "Major");
+		
+	}
+	
+
+	public static void testDelete(DBApp myDB) throws IOException, DBEngineException, ClassNotFoundException
+	{		
+//		Select the record to be deleted from table "Faculty"
+		Hashtable<String,Object> ftblColNameValue4 = new Hashtable<String,Object>();
+		ftblColNameValue4.put("Name", "Management Technology");
+		myDB.printResult(myDB.selectFromTable("Faculty", ftblColNameValue4, "AND"), "Faculty");
+		
+//		Delete from table "Faculty" :
+		Hashtable<String,Object> ftblColNameValue3 = new Hashtable<String,Object>();
+		ftblColNameValue3.put("Name", "Management Technology");
+		myDB.deleteFromTable("Faculty", ftblColNameValue3, "AND");
+		
+//		Select from table "Faculty" the deleted record :
+		myDB.printResult(myDB.selectFromTable("Faculty", ftblColNameValue4, "AND"), "Faculty");
+	}
+
 }

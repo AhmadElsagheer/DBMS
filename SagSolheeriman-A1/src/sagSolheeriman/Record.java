@@ -52,6 +52,4 @@ public class Record implements Serializable{
 			ret += o.toString() + ", ";
 		return ret;
 	}
-	
-	
 }
