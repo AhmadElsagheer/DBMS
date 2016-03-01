@@ -5,7 +5,7 @@ public class BPTreeInnerNode extends BPTreeNode {
 	
 	public BPTreeInnerNode(int n) {
 		super(n);
-		this.keys = new Object[n];
+		this.keys = new key[n];
 		this.children = new Object[n+1];
 	}
 
@@ -32,7 +32,7 @@ public class BPTreeInnerNode extends BPTreeNode {
 		
 	}
 	@Override
-	public int search(Object key) {
+	public int search(key key) {
 		return 0;
 	}
 

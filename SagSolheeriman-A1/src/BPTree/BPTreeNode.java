@@ -6,7 +6,7 @@ enum NodeType{
 }
 public abstract class BPTreeNode {
 
-	protected Object[] keys;
+	protected key[] keys;
 	protected BPTreeNode parentNode;
 	protected BPTreeNode rightSibling;
 	protected BPTreeNode leftSibling;
@@ -30,10 +30,10 @@ public abstract class BPTreeNode {
 		return (parentNode == null);
 	}
 	
-	public Object getKey(int index){
-		return this.keys[index];
+	public key getKey(int index){
+		return (key) this.keys[index];
 	}
-	public void setKey(int index, Object key) {
+	public void setKey(int index, key key) {
 		this.keys[index] = key;
 	}
 
@@ -50,7 +50,7 @@ public abstract class BPTreeNode {
 	 * otherwise return -1, 
 	 * for an Inner Node : return the child node index which should contain the key.
 	 */
-	public abstract int search(Object key);
+	public abstract int search(key key);
 	
 	
 	
