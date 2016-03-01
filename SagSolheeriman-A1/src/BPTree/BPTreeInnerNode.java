@@ -43,9 +43,22 @@ public class BPTreeInnerNode extends BPTreeNode {
 				this.numberOfKeys += 1;
 	}
 
-	@Override
+	/**
+	 * Do linear search to find the position of a key .
+	 */
 	public int search(key key) {
-		return 0;
+		int index = 0;
+		for (index = 0; index < this.countKeys(); ++index) {
+			int cmp = this.getKey(index).compareTo(key);
+			if (cmp == 0) {
+				return index + 1;
+			}
+			else if (cmp > 0) {
+				return index;
+			}
+		}
+		
+		return index;
 	}
 
 	@Override
