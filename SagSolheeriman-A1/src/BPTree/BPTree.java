@@ -1,20 +1,21 @@
 package BPTree;
 
-public class BPTree {
+public class BPTree<T> {
 
-	public int n;
+	private int n;
 	private int NonLeafMinptrs;
 	private int NonLeafMinKeys;
 	private int LeafMinPtrs;
 	private int LeafMinKeys;
 	private BPTreeLeafNode root;
 
-	public BPTree(int n) {
+	public BPTree(int n) 
+	{
 		this.n = n;
-		NonLeafMinptrs = (int) Math.ceil((n + 1) / 2);
+		NonLeafMinptrs = (n + 2) / 2;
 		NonLeafMinKeys = NonLeafMinptrs - 1;
-		LeafMinPtrs = (int) Math.floor((n + 1) / 2);
-		LeafMinKeys = LeafMinPtrs - 1;
+		LeafMinPtrs = LeafMinKeys = (n + 1) / 2;
+		
 		this.root = new BPTreeLeafNode(n);
 	}
 
@@ -22,7 +23,8 @@ public class BPTree {
 	/**
 	 * Insert a new key and its associated value into the B+ tree.
 	 */
-	public void insert(Object key, Object value) {
+	public void insert(T key, Ref recordReference) 
+	{
 		// TODO 
 	}
 	
@@ -30,22 +32,18 @@ public class BPTree {
 	/**
 	 * Delete a key and its associated value from the tree.
 	 */
-	public void delete(Object key){
+	public void delete(T key)
+	{
 		//TODO
 	}
 	
 	/**
 	 * Search a key value on the tree and return its associated value.
 	 */
-	public Object search(Object key)
+	public Object search(T key)
 	{
 		//TODO
 		return null;
 	}
 	
-	
-	
-	
-	
-
 }
