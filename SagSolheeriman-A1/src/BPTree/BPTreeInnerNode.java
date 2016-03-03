@@ -11,6 +11,13 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 		keys = new Comparable[n];
 		children = new BPTreeNode[n + 1];
 	}
+	
+	public int minKeys()
+	{
+		if(this.isRoot())
+			return 1;
+		return (order + 2) / 2 - 1;
+	}
 
 	public BPTreeNode<T> getChild(int index) 
 	{
@@ -22,11 +29,12 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 		children[index] = child;
 	}
 
+	
 	/**
 	 * insert a key at specified index , adjust the pointers right and left to
 	 * that key
 	 */
-	private void insertAt(int index, T key, BPTreeNode<T> leftChild, BPTreeNode<T> rightChild) 
+	private void insertAt(int index, Comparable<T> key) 
 	{
 		// move space for the new key
 		for (int i = numberOfKeys + 1; i > index; --i) 
@@ -37,10 +45,22 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 		
 		
 		// insert the new key and adjust pointers .
-		setKey(index, key);
-		setChild(index, leftChild);
-		setChild(index + 1, rightChild);
+		this.setKey(index, key);
+		
+		
 		numberOfKeys += 1;
+	}
+	
+	public void insertLeftAt(int index, Comparable<T> key, BPTreeNode<T> leftChild) 
+	{
+		insertAt(index, key);
+		this.setChild(index, leftChild);
+	}
+	
+	public void insertRightAt(int index, Comparable<T> key, BPTreeNode<T> rightChild)
+	{
+		insertAt(index, key);
+		this.setChild(index + 1, rightChild);
 	}
 
 	/**
@@ -76,15 +96,106 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 
 	public boolean delete(T key, BPTreeInnerNode<T> parent, int ptr) 
 	{
-		for(int i = 0; i < numberOfKeys; ++i)
+		boolean done = false;
+		for(int i = 0; !done && i < numberOfKeys; ++i)
 			if(keys[i].compareTo(key) > 0)
-				return children[i].delete(key, this, i);
-		return children[numberOfKeys].delete(key, this, numberOfKeys);
+			{
+				done = children[i].delete(key, this, i);
+			}
+		if(!done)
+			done = children[numberOfKeys].delete(key, this, numberOfKeys);
+		if(numberOfKeys < this.minKeys())
+		{
+			if(isRoot())
+			{
+				this.getFirstChild().setRoot(true);
+				this.setRoot(false);
+				return done;
+			}
+			//1.try to borrow
+			if(borrow(parent, ptr))
+				return done;
+			//2.merge
+			merge(parent, ptr);
+		}
+		return done;
+	}
+	
+	public boolean borrow(BPTreeInnerNode<T> parent, int ptr)
+	{
+		//check left sibling
+		if(ptr > 0)
+		{
+			BPTreeInnerNode<T> leftSibling = (BPTreeInnerNode<T>) parent.getChild(ptr-1);
+			if(leftSibling.numberOfKeys > leftSibling.minKeys())
+			{
+				this.insertLeftAt(0, parent.getKey(ptr-1), leftSibling.getLastChild());
+				parent.deleteAt(ptr-1);
+				parent.insertRightAt(ptr-1, leftSibling.getLastKey(), this);
+				leftSibling.deleteAt(leftSibling.numberOfKeys - 1);
+				return true;
+			}
+		}
+		
+		//check right sibling
+		if(ptr < parent.numberOfKeys)
+		{
+			BPTreeInnerNode<T> rightSibling = (BPTreeInnerNode<T>) parent.getChild(ptr);
+			if(rightSibling.numberOfKeys > rightSibling.minKeys())
+			{
+				this.insertRightAt(0, parent.getKey(ptr), rightSibling.getFirstChild());
+				parent.deleteAt(ptr);
+				parent.insertRightAt(ptr, rightSibling.getLastKey(), rightSibling);
+				rightSibling.deleteAt(0);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void merge(BPTreeInnerNode<T> parent, int ptr)
+	{
+		if(ptr > 0)
+		{
+			//merge with left
+			BPTreeInnerNode<T> leftSibling = (BPTreeInnerNode<T>) parent.getChild(ptr-1);
+			leftSibling.merge(parent.getKey(ptr-1), this);
+			parent.deleteAt(ptr-1);			
+		}
+		else
+		{
+			//merge with right
+			BPTreeInnerNode<T> rightSibling = (BPTreeInnerNode<T>) parent.getChild(ptr);
+			this.merge(parent.getKey(ptr), rightSibling);
+			parent.deleteAt(ptr);
+		}
+	}
+	
+	public void merge(Comparable<T> parentKey, BPTreeInnerNode<T> foreignNode)
+	{
+		this.insertRightAt(numberOfKeys, parentKey, foreignNode.getFirstChild());
+		for(int i = 0; i < foreignNode.numberOfKeys; ++i)
+			this.insertRightAt(numberOfKeys, foreignNode.getKey(i), foreignNode.getChild(i+1));
 	}
 	
 	public void deleteAt(int index)
 	{
-		
+		for(int i = index; i < numberOfKeys - 1; ++i)
+		{
+			keys[i] = keys[i+1];
+			children[i+1] = children[i+2];
+		}
+		numberOfKeys--;
+	}
+	
+	public BPTreeNode<T> getLastChild()
+	{
+		return children[numberOfKeys];
+	}
+	
+	public BPTreeNode<T> getFirstChild()
+	{
+		return children[numberOfKeys];
 	}
 
 }

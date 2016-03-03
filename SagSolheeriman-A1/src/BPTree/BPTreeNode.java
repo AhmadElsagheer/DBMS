@@ -5,11 +5,22 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 	protected Comparable<T>[] keys;
 	protected int numberOfKeys;
 	protected int order;
+	private boolean isRoot;
 
 	public BPTreeNode(int order) 
 	{
 		numberOfKeys = 0;
 		this.order = order;
+	}
+	
+	public boolean isRoot()
+	{
+		return isRoot;
+	}
+	
+	public void setRoot(boolean isRoot)
+	{
+		this.isRoot = isRoot;
 	}
 
 	public Comparable<T> getKey(int index) 
@@ -49,5 +60,7 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 	public abstract boolean delete(T key, BPTreeInnerNode<T> parent, int ptr);
 	
 	public abstract void deleteAt(int index);
+	
+	public abstract int minKeys();
 
 }

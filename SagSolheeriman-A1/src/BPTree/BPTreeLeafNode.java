@@ -13,6 +13,13 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		records = new Ref[n];
 
 	}
+	
+	public int minKeys()
+	{
+		if(this.isRoot())
+			return 1;
+		return (order + 1) / 2;
+	}
 
 	public Ref getRecord(int index) 
 	{
@@ -84,14 +91,13 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 					parent.setKey(ptr - 1, this.getFirstKey());
 				}
 				//check that node has enough keys
-				if(numberOfKeys < (order + 1) / 2)
+				if(!this.isRoot() && numberOfKeys < this.minKeys())
 				{
 					//1.try to borrow
 					if(borrow(parent, ptr))
 						return true;
 					//2.merge
 					merge(parent, ptr);
-					return true;
 				}
 				return true;
 			}
@@ -104,7 +110,7 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		if(ptr > 0)
 		{
 			BPTreeLeafNode<T> leftSibling = (BPTreeLeafNode<T>) parent.getChild(ptr-1);
-			if(leftSibling.numberOfKeys > (order + 1) / 2)
+			if(leftSibling.numberOfKeys > leftSibling.minKeys())
 			{
 				this.insertAt(0, leftSibling.getLastKey(), leftSibling.getLastRecord());		
 				leftSibling.deleteAt(leftSibling.numberOfKeys - 1);
@@ -117,7 +123,7 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		if(ptr < parent.numberOfKeys)
 		{
 			BPTreeLeafNode<T> rightSibling = (BPTreeLeafNode<T>) parent.getChild(ptr);
-			if(rightSibling.numberOfKeys > (order + 1) / 2)
+			if(rightSibling.numberOfKeys > rightSibling.minKeys())
 			{
 				this.insertAt(numberOfKeys, rightSibling.getFirstKey(), rightSibling.getFirstRecord());
 				rightSibling.deleteAt(0);

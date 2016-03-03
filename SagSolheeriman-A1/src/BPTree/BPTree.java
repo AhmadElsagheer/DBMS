@@ -3,12 +3,13 @@ package BPTree;
 public class BPTree<T extends Comparable<T>> {
 
 	private int order;
-	private BPTreeInnerNode<T> root;
+	private BPTreeNode<T> root;
 
 	public BPTree(int order) 
 	{
 		this.order = order;
-		root = new BPTreeInnerNode<T>(this.order);
+		root = new BPTreeLeafNode<T>(this.order);
+		root.setRoot(true);
 	}
 
 	
@@ -26,7 +27,9 @@ public class BPTree<T extends Comparable<T>> {
 	 */
 	public boolean delete(T key)
 	{
-		return root.delete(key, null, -1);
+		boolean done = root.delete(key, null, -1);
+		findRoot();
+		return done;
 	}
 	
 	/**
@@ -36,6 +39,12 @@ public class BPTree<T extends Comparable<T>> {
 	{
 		//TODO
 		return null;
+	}
+	
+	public void findRoot()
+	{
+		while(root instanceof BPTreeInnerNode && !root.isRoot())
+			root = ((BPTreeInnerNode<T>) root).getFirstChild();
 	}
 	
 }
