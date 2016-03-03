@@ -15,6 +15,12 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		records = new Ref[n];
 
 	}
+	private BPTreeLeafNode<T> getNext(){
+		return this.next;
+	}
+	private void setNext(BPTreeLeafNode<T> node){
+		this.next = node;
+	}
 
 	public Ref getValue(int index) 
 	{
@@ -78,6 +84,8 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		newRNode.numberOfKeys = numberOfKeys - midIndex;
 		numberOfKeys = midIndex;
 		
+		newRNode.setNext(this.getNext());
+		this.setNext(newRNode);
 		return newRNode;
 	}
 
