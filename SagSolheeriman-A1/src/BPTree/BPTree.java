@@ -1,5 +1,6 @@
 package BPTree;
 
+import java.util.Scanner;
 import java.util.Stack;
 
 public class BPTree<T extends Comparable<T>> {
@@ -80,8 +81,9 @@ public class BPTree<T extends Comparable<T>> {
 		
 		String s = "";
 		BPTreeNode<T> curNode = this.root;
-		while(curNode instanceof BPTreeInnerNode)
+		while(curNode instanceof BPTreeInnerNode) {
 			curNode = ((BPTreeInnerNode<T>) curNode).getChild(0);
+		}
 		
 		BPTreeLeafNode<T> curLeaf = (BPTreeLeafNode<T>) curNode;
 		// at least one leaf 
@@ -102,19 +104,13 @@ public class BPTree<T extends Comparable<T>> {
 	
 	public static void main(String[] args) {
 		BPTree<Integer> tree = new BPTree<Integer>(4);
-		tree.insert(4, null);
-		tree.insert(6, null);
-		tree.insert(9, null);
-		tree.insert(14, null);
-		tree.insert(20, null);
-		tree.insert(5, null);
-		tree.insert(8, null);
-		tree.insert(9, null);
-		tree.insert(15, null);
-		tree.insert(30, null);
-		tree.insert(100, null);
+		Scanner sc = new Scanner(System.in);
+		for (int i = 0; i < 10; i++) {
+			tree.insert(sc.nextInt(), null);
+			System.out.println(tree.toString());
 
-		System.out.println(tree.toString());
+		}
+
 	}
 	
 }

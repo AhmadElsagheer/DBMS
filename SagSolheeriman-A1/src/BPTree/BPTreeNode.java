@@ -48,7 +48,7 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 		BPTreeNode<T> parent;
 		if (recStack.isEmpty()) {    
 			parent = (BPTreeInnerNode<T>) new BPTreeInnerNode<T>(ORDER);
-			recStack.push(parent);
+//			recStack.push(parent);
 		}
 		else
 		{
