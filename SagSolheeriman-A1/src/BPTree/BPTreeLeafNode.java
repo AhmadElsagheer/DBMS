@@ -13,6 +13,13 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		records = new Ref[n];
 
 	}
+	
+	public int minKeys()
+	{
+		if(this.isRoot())
+			return 1;
+		return (order + 1) / 2;
+	}
 
 	public Ref getRecord(int index) 
 	{
@@ -77,28 +84,20 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		for(int i = 0; i < numberOfKeys; ++i)
 			if(keys[i].compareTo(key) == 0)
 			{
-				//shift remaining keys and records
-				while(i < numberOfKeys - 1)
+				this.deleteAt(i);
+				if(i == 0 && ptr > 0)
 				{
-					keys[i] = keys[i+1];
-					records[i] = records[i+1];
-					if(i == 0 && ptr > 0)
-					{
-						//update key at parent
-						parent.setKey(ptr - 1, key);
-					}
-					i++;
+					//update key at parent
+					parent.setKey(ptr - 1, this.getFirstKey());
 				}
-				numberOfKeys--;
 				//check that node has enough keys
-				if(numberOfKeys < (order + 1) / 2)
+				if(!this.isRoot() && numberOfKeys < this.minKeys())
 				{
 					//1.try to borrow
 					if(borrow(parent, ptr))
 						return true;
 					//2.merge
 					merge(parent, ptr);
-					return true;
 				}
 				return true;
 			}
@@ -111,7 +110,7 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		if(ptr > 0)
 		{
 			BPTreeLeafNode<T> leftSibling = (BPTreeLeafNode<T>) parent.getChild(ptr-1);
-			if(leftSibling.numberOfKeys > (order + 1) / 2)
+			if(leftSibling.numberOfKeys > leftSibling.minKeys())
 			{
 				this.insertAt(0, leftSibling.getLastKey(), leftSibling.getLastRecord());		
 				leftSibling.deleteAt(leftSibling.numberOfKeys - 1);
@@ -124,11 +123,11 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		if(ptr < parent.numberOfKeys)
 		{
 			BPTreeLeafNode<T> rightSibling = (BPTreeLeafNode<T>) parent.getChild(ptr);
-			if(rightSibling.numberOfKeys > (order + 1) / 2)
+			if(rightSibling.numberOfKeys > rightSibling.minKeys())
 			{
 				this.insertAt(numberOfKeys, rightSibling.getFirstKey(), rightSibling.getFirstRecord());
 				rightSibling.deleteAt(0);
-				parent.setKey(ptr - 1, rightSibling.getFirstKey());
+				parent.setKey(ptr, rightSibling.getFirstKey());
 				return true;
 			}
 		}
