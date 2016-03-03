@@ -4,12 +4,12 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 
 	protected Comparable<T>[] keys;
 	protected int numberOfKeys;
-	protected int ORDER;
+	protected int order;
 
-	public BPTreeNode(int n) 
+	public BPTreeNode(int order) 
 	{
 		numberOfKeys = 0;
-		ORDER = n;
+		this.order = order;
 	}
 
 	public Comparable<T> getKey(int index) 
@@ -24,7 +24,17 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 
 	public boolean ifFull() 
 	{
-		return numberOfKeys == ORDER;
+		return numberOfKeys == order;
+	}
+	
+	public Comparable<T> getLastKey()
+	{
+		return keys[numberOfKeys];
+	}
+	
+	public Comparable<T> getFirstKey()
+	{
+		return keys[0];
 	}
 	
 	/**
@@ -36,6 +46,8 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 
 	public abstract BPTreeNode<T> split();
 	
-	public abstract boolean delete(T key);
+	public abstract boolean delete(T key, BPTreeInnerNode<T> parent, int ptr);
+	
+	public abstract void deleteAt(int index);
 
 }

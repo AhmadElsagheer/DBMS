@@ -2,20 +2,13 @@ package BPTree;
 
 public class BPTree<T extends Comparable<T>> {
 
-	private int n;
-	private int NonLeafMinptrs;
-	private int NonLeafMinKeys;
-	private int LeafMinPtrs;
-	private int LeafMinKeys;
+	private int order;
 	private BPTreeInnerNode<T> root;
 
-	public BPTree(int n) 
+	public BPTree(int order) 
 	{
-		this.n = n;
-		NonLeafMinptrs = (n + 2) / 2;
-		NonLeafMinKeys = NonLeafMinptrs - 1;
-		LeafMinPtrs = LeafMinKeys = (n + 1) / 2;
-		root = new BPTreeInnerNode<T>(n);
+		this.order = order;
+		root = new BPTreeInnerNode<T>(this.order);
 	}
 
 	
@@ -33,7 +26,7 @@ public class BPTree<T extends Comparable<T>> {
 	 */
 	public boolean delete(T key)
 	{
-		return root.delete(key);
+		return root.delete(key, null, -1);
 	}
 	
 	/**
