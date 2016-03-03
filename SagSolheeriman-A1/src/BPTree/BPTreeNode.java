@@ -41,14 +41,19 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 	 */
 	public BPTreeNode<T> dealOverflow(Stack<BPTreeNode<T>>recStack) {
 		int midIndex = this.numberOfKeys / 2;
-		BPTreeNode<T> parent = recStack.pop();
 		// key to be pushed up to the root .
 		T upKey = (T) getKey(midIndex);
 		
 		BPTreeNode<T> newRNode = this.split();
-				
-		if (parent == null)    
+		BPTreeNode<T> parent;
+		if (recStack.isEmpty()) {    
 			parent = (BPTreeInnerNode<T>) new BPTreeInnerNode<T>(ORDER);
+			recStack.push(parent);
+		}
+		else
+		{
+			parent = recStack.pop();
+		}
 		
 
 		// push up a key to parent internal node

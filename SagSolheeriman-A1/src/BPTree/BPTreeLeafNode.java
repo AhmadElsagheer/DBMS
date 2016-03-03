@@ -15,10 +15,10 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		records = new Ref[n];
 
 	}
-	private BPTreeLeafNode<T> getNext(){
+	public BPTreeLeafNode<T> getNext(){
 		return this.next;
 	}
-	private void setNext(BPTreeLeafNode<T> node){
+	public void setNext(BPTreeLeafNode<T> node){
 		this.next = node;
 	}
 

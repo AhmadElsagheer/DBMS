@@ -76,4 +76,38 @@ public class BPTree<T extends Comparable<T>> {
 		return null;
 	}
 	
+	public String toString(){
+		
+		String s = "";
+		BPTreeNode<T> curNode = this.root;
+		while(curNode instanceof BPTreeInnerNode)
+			curNode = ((BPTreeInnerNode<T>) curNode).getChild(0);
+		
+		BPTreeLeafNode<T> curLeaf = (BPTreeLeafNode<T>) curNode;
+		// at least one leaf 
+		for (int i = 0; i < curLeaf.keys.length; i++) {
+			s+= curLeaf.keys[i] + "|";
+		}
+		while(curLeaf.getNext() != null){
+			curLeaf = curLeaf.getNext();
+			s += " -> ";
+			for (int i = 0; i < curLeaf.keys.length; i++) {
+				s+= curLeaf.keys[i] + "|";
+			}
+			
+		}
+		
+		return s;
+	}
+	
+	public static void main(String[] args) {
+		BPTree<Integer> tree = new BPTree<Integer>(4);
+		tree.insert(4, null);
+		tree.insert(6, null);
+		tree.insert(9, null);
+		tree.insert(14, null);
+//		tree.insert(20, null);
+		System.out.println(tree.toString());
+	}
+	
 }
