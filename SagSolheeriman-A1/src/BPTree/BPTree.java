@@ -1,13 +1,16 @@
 package BPTree;
 
-public class BPTree<T> {
+import java.util.Stack;
+
+public class BPTree<T extends Comparable<T>> {
 
 	private int n;
 	private int NonLeafMinptrs;
 	private int NonLeafMinKeys;
 	private int LeafMinPtrs;
 	private int LeafMinKeys;
-	private BPTreeLeafNode root;
+	private Stack<BPTreeNode<T>> recStack;
+	private BPTreeNode<T> root;
 
 	public BPTree(int n) 
 	{
@@ -23,9 +26,30 @@ public class BPTree<T> {
 	/**
 	 * Insert a new key and its associated value into the B+ tree.
 	 */
-	public void insert(T key, Ref recordReference) 
+	public void insert(T key, Ref recordReference) // stack
 	{
-		// TODO 
+		//find the target leaf node to insert the key in the right place 
+		BPTreeLeafNode<T> leaf = this.findTargetLeafNode(key);
+		leaf.insertKey(key, recordReference);
+		
+		if (leaf.ifFull()) {
+			BPTreeNode<T> n = leaf.dealOverflow(recStack);
+			if (n != null)
+				this.root = (BPTreeNode<T>) n; 
+		}
+	}
+	
+	private BPTreeLeafNode<T> findTargetLeafNode(T key) {
+		BPTreeNode<T> curNode = root;
+		 recStack = new Stack<BPTreeNode<T>>();
+		while (curNode instanceof BPTreeInnerNode) {
+			// find the proper navigation pointer until you reach the leafNode
+			recStack.push(curNode);
+			curNode = ((BPTreeInnerNode<T>)curNode).getChild(curNode.search(key));
+		}
+		
+		// return the target Leaf node
+		return (BPTreeLeafNode<T>) curNode;
 	}
 	
 	

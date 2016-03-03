@@ -1,5 +1,7 @@
 package BPTree;
 
+import java.util.Stack;
+
 public abstract class BPTreeNode<T extends Comparable<T>> {
 
 	protected Comparable<T>[] keys;
@@ -26,6 +28,29 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 	{
 		return numberOfKeys == ORDER;
 	}
+	
+	public BPTreeNode<T> dealOverflow(Stack<BPTreeNode<T>>recStack) {
+		int midIndex = this.numberOfKeys / 2;
+		BPTreeNode<T> parent = recStack.pop();
+		// key to be pushed up to the root .
+		T upKey = (T) getKey(midIndex);
+		
+		BPTreeNode<T> newRNode = this.split();
+				
+		if (parent == null) {   
+			parent = (BPTreeInnerNode<T>) new BPTreeInnerNode<T>(ORDER);
+		}
+//		-------------------------------------
+//		|  maintain links of sibling nodes	|
+//		-------------------------------------
+		
+		
+		// push up a key to parent internal node
+		return parent.pushUpKey(upKey, this, newRNode , recStack);
+	}
+	
+	protected abstract BPTreeNode<T> pushUpKey(T key, BPTreeNode<T> leftChild, BPTreeNode<T> rightNode , Stack<BPTreeNode<T>>recStack);
+
 	
 	/**
 	 * for a leaf Node : Search a key on current node, if found the key then

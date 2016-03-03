@@ -1,5 +1,7 @@
 package BPTree;
 
+import java.util.Stack;
+
 public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 
 	Ref[] records;
@@ -64,8 +66,19 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 	 */
 	public BPTreeNode<T> split() 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		int midIndex = numberOfKeys / 2;
+		
+		BPTreeLeafNode<T> newRNode = new BPTreeLeafNode<T>(ORDER);
+		for (int i = midIndex; i < numberOfKeys; ++i) {
+			newRNode.setKey(i - midIndex, this.getKey(i));
+			newRNode.setValue(i - midIndex, this.getValue(i));
+			this.setKey(i, null);
+			this.setValue(i, null);
+		}
+		newRNode.numberOfKeys = numberOfKeys - midIndex;
+		numberOfKeys = midIndex;
+		
+		return newRNode;
 	}
 
 	@Override
@@ -82,6 +95,15 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		}
 		return -1;
 	}
+
+	@Override
+	protected BPTreeNode<T> pushUpKey(T key, BPTreeNode<T> leftChild, BPTreeNode<T> rightNode,
+			Stack<BPTreeNode<T>> recStack) {
+		
+		return null;
+	}
+
+	
 
 
 }

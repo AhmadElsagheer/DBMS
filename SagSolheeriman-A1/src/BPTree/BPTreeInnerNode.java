@@ -1,5 +1,7 @@
 package BPTree;
 
+import java.util.Stack;
+
 public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T> 
 {
 	protected BPTreeNode<T>[] children;
@@ -68,8 +70,45 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 	 * to parent node.
 	 */
 	public BPTreeNode split() {
-		// TODO Auto-generated method stub
-		return null;
+		int midIndex = numberOfKeys/ 2;
+		
+		BPTreeInnerNode<T> newRNode = new BPTreeInnerNode<T>(ORDER);
+		for (int i = midIndex + 1; i <  numberOfKeys; ++i) {
+		//transfer nodes to the new node 
+			newRNode.setKey(i - midIndex - 1, getKey(i));
+			this.setKey(i, null);
+		}
+		for (int i = midIndex + 1; i <= numberOfKeys; ++i) {
+			//adjust pointers
+			newRNode.setChild(i - midIndex - 1, getChild(i));
+//			newRNode.getChild(i - midIndex - 1).setParent(newRNode);
+			this.setChild(i, null);
+		}
+		setKey(midIndex, null);
+		newRNode.numberOfKeys = this.numberOfKeys - midIndex - 1;
+		numberOfKeys = midIndex;
+		
+		return newRNode;
+	
 	}
 
+	@Override
+	protected BPTreeNode<T> pushUpKey(T key, BPTreeNode<T> leftChild, BPTreeNode<T> rightNode , Stack<BPTreeNode<T>> recStack) {
+		// find the target position of the new key
+				int index = this.search(key);
+				
+				// insert the new key
+				this.insertAt(index, key, leftChild, rightNode);
+				
+				// check whether current node need to be split
+				if (this.ifFull()) 
+					return this.dealOverflow(recStack);
+				else
+				{
+					if(recStack.isEmpty())
+						return this;
+					else
+						return null;
+				}
+}
 }
