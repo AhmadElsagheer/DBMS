@@ -61,24 +61,30 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 		return index;
 	}
 
-	@Override
+	
 	/**
 	 * split : create a new Inner Node , adjust keys and children between the
 	 * splitted and new node When splits an Inner node, the middle key is pushed
 	 * to parent node.
 	 */
+	@Override
 	public BPTreeNode<T> split() 
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public boolean delete(T key) 
+	public boolean delete(T key, BPTreeInnerNode<T> parent, int ptr) 
 	{
 		for(int i = 0; i < numberOfKeys; ++i)
 			if(keys[i].compareTo(key) > 0)
-				return children[i].delete(key);
-		return children[numberOfKeys].delete(key);
+				return children[i].delete(key, this, i);
+		return children[numberOfKeys].delete(key, this, numberOfKeys);
+	}
+	
+	public void deleteAt(int index)
+	{
+		
 	}
 
 }
