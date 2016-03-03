@@ -77,19 +77,12 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		for(int i = 0; i < numberOfKeys; ++i)
 			if(keys[i].compareTo(key) == 0)
 			{
-				//shift remaining keys and records
-				while(i < numberOfKeys - 1)
+				this.deleteAt(i);
+				if(i == 0 && ptr > 0)
 				{
-					keys[i] = keys[i+1];
-					records[i] = records[i+1];
-					if(i == 0 && ptr > 0)
-					{
-						//update key at parent
-						parent.setKey(ptr - 1, key);
-					}
-					i++;
+					//update key at parent
+					parent.setKey(ptr - 1, this.getFirstKey());
 				}
-				numberOfKeys--;
 				//check that node has enough keys
 				if(numberOfKeys < (order + 1) / 2)
 				{
@@ -128,7 +121,7 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 			{
 				this.insertAt(numberOfKeys, rightSibling.getFirstKey(), rightSibling.getFirstRecord());
 				rightSibling.deleteAt(0);
-				parent.setKey(ptr - 1, rightSibling.getFirstKey());
+				parent.setKey(ptr, rightSibling.getFirstKey());
 				return true;
 			}
 		}
