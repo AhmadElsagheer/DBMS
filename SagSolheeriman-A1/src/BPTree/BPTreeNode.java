@@ -12,7 +12,6 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 		numberOfKeys = 0;
 		this.order = order;
 	}
-	
 	public boolean isRoot()
 	{
 		return isRoot;
@@ -28,39 +27,50 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 		return keys[index];
 	}
 
-	public void setKey(int index, Comparable<T> comparable) 
+	public void setKey(int index, Comparable<T> key) 
 	{
-		keys[index] = comparable;
+		keys[index] = key;
 	}
 
-	public boolean ifFull() 
+	public boolean isFull() 
 	{
 		return numberOfKeys == order;
 	}
 	
 	public Comparable<T> getLastKey()
 	{
-		return keys[numberOfKeys];
+		return keys[numberOfKeys-1];
 	}
 	
 	public Comparable<T> getFirstKey()
 	{
 		return keys[0];
 	}
-	
-	/**
-	 * for a leaf Node : Search a key on current node, if found the key then
-	 * return its position, otherwise return -1, for an Inner Node : return the
-	 * child node index which should contain the key.
-	 */
-	public abstract int search(T key);
+		
+	public abstract int minKeys();
 
-	public abstract BPTreeNode<T> split();
+	public abstract PushUp<T> insert(T key, Ref recordReference, BPTreeInnerNode<T> parent, int ptr);
 	
+	public abstract Ref search(T key);
+
 	public abstract boolean delete(T key, BPTreeInnerNode<T> parent, int ptr);
 	
-	public abstract void deleteAt(int index);
-	
-	public abstract int minKeys();
+	public String toString()
+	{		
+		String s = "";
+
+		s += "[";
+		for (int i = 0; i < order; i++)
+		{
+			String key = " ";
+			if(i < numberOfKeys)
+				key = keys[i].toString();
+			s+= key;
+			if(i < order - 1)
+				s += "|";
+		}
+		s += "]";
+		return s;
+	}
 
 }

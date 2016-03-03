@@ -2,7 +2,7 @@ package BPTree;
 
 public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 
-	Ref[] records;
+	private Ref[] records;
 	private BPTreeLeafNode<T> next;
 	
 	@SuppressWarnings("unchecked")
@@ -14,30 +14,61 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 
 	}
 	
+	public BPTreeLeafNode<T> getNext()
+	{
+		return this.next;
+	}
+	
+	public void setNext(BPTreeLeafNode<T> node)
+	{
+		this.next = node;
+	}
+	
+	public Ref getRecord(int index) 
+	{
+		return records[index];
+	}
+	
+	public void setRecord(int index, Ref recordReference) 
+	{
+		records[index] = recordReference;
+	}
+	
+	public Ref getFirstRecord()
+	{
+		return records[0];
+	}
+
+	public Ref getLastRecord()
+	{
+		return records[numberOfKeys-1];
+	}
+	
 	public int minKeys()
 	{
 		if(this.isRoot())
 			return 1;
 		return (order + 1) / 2;
 	}
-
-	public Ref getRecord(int index) 
+	
+	public PushUp<T> insert(T key, Ref recordReference, BPTreeInnerNode<T> parent, int ptr)
 	{
-		return records[index];
+		if(this.isFull())
+		{
+			BPTreeNode<T> newNode = this.split(key, recordReference);
+			Comparable<T> newKey = newNode.getFirstKey();
+			return new PushUp<T>(newNode, newKey);
+		}
+		else
+		{
+			int index = 0;
+			while (index < numberOfKeys && getKey(index).compareTo(key) <= 0)
+				++index;
+			this.insertAt(index, key, recordReference);
+			return null;
+		}
 	}
-
-	public void setRecord(int index, Ref recordReference) 
-	{
-		records[index] = recordReference;
-	}
-
-	public void insertKey(T key, Ref recordReference) 
-	{
-		int index = 0;
-		while (index < numberOfKeys && getKey(index).compareTo(key) < 0)
-			++index;
-		insertAt(index, key, recordReference);
-	}
+	
 
 	private void insertAt(int index, Comparable<T> key, Ref recordReference) 
 	{
@@ -47,36 +78,59 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 			this.setRecord(i + 1, getRecord(i));
 		}
 
-		// insert new key and value
 		this.setKey(index, key);
 		this.setRecord(index, recordReference);
 		++numberOfKeys;
 	}
-
-	@Override
-	/**
-	 * On splitting a leaf node, the middle key is kept on the new node and
-	 * pushed to the parent node.
-	 */
-	public BPTreeNode<T> split() 
+	
+	public BPTreeNode<T> split(T key, Ref recordReference) 
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+		int keyIndex = this.findIndex(key);
+		int midIndex = numberOfKeys / 2;
+		if((numberOfKeys & 1) == 1 && keyIndex > midIndex)	//split nodes evenly
+			++midIndex;		
 
-	@Override
-	public int search(T key) 
+		
+		int totalKeys = numberOfKeys + 1;
+		//move keys to a new node
+		BPTreeLeafNode<T> newNode = new BPTreeLeafNode<T>(order);
+		for (int i = midIndex; i < totalKeys - 1; ++i) 
+		{
+			newNode.insertAt(i - midIndex, this.getKey(i), this.getRecord(i));
+			numberOfKeys--;
+		}
+		
+		//insert the new key
+		if(keyIndex < totalKeys / 2)
+			this.insertAt(keyIndex, key, recordReference);
+		else
+			newNode.insertAt(keyIndex - midIndex, key, recordReference);
+		
+		//set next pointers
+		newNode.setNext(this.getNext());
+		this.setNext(newNode);
+		
+		return newNode;
+	}
+	
+	public int findIndex(T key) 
 	{
 		for (int i = 0; i < numberOfKeys; ++i) 
 		{
 			int cmp = getKey(i).compareTo(key);
-			if (cmp == 0) 
+			if (cmp > 0) 
 				return i;
-			else 
-				if (cmp > 0)
-					break;
 		}
-		return -1;
+		return numberOfKeys;
+	}
+
+	@Override
+	public Ref search(T key) 
+	{
+		for(int i = 0; i < numberOfKeys; ++i)
+			if(this.getKey(i).compareTo(key) == 0)
+				return this.getRecord(i);
+		return null;
 	}
 	
 	public boolean delete(T key, BPTreeInnerNode<T> parent, int ptr) 
@@ -104,6 +158,16 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		return false;
 	}
 	
+	public void deleteAt(int index)
+	{
+		for(int i = index; i < numberOfKeys - 1; ++i)
+		{
+			keys[i] = keys[i+1];
+			records[i] = records[i+1];
+		}
+		numberOfKeys--;
+	}
+	
 	public boolean borrow(BPTreeInnerNode<T> parent, int ptr)
 	{
 		//check left sibling
@@ -120,9 +184,9 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		}
 		
 		//check right sibling
-		if(ptr < parent.numberOfKeys)
+		if(ptr <= parent.numberOfKeys)
 		{
-			BPTreeLeafNode<T> rightSibling = (BPTreeLeafNode<T>) parent.getChild(ptr);
+			BPTreeLeafNode<T> rightSibling = (BPTreeLeafNode<T>) parent.getChild(ptr+1);
 			if(rightSibling.numberOfKeys > rightSibling.minKeys())
 			{
 				this.insertAt(numberOfKeys, rightSibling.getFirstKey(), rightSibling.getFirstRecord());
@@ -146,7 +210,7 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		else
 		{
 			//merge with right
-			BPTreeLeafNode<T> rightSibling = (BPTreeLeafNode<T>) parent.getChild(ptr);
+			BPTreeLeafNode<T> rightSibling = (BPTreeLeafNode<T>) parent.getChild(ptr+1);
 			this.merge(rightSibling);
 			parent.deleteAt(ptr);
 		}
@@ -154,28 +218,12 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 	
 	public void merge(BPTreeLeafNode<T> foreignNode)
 	{
+		System.out.println(foreignNode);
 		for(int i = 0; i < foreignNode.numberOfKeys; ++i)
-			this.insertAt(numberOfKeys, foreignNode.getKey(i), foreignNode.getRecord(i));
-	}
-
-	public Ref getLastRecord()
-	{
-		return records[numberOfKeys];
-	}
-	
-	public Ref getFirstRecord()
-	{
-		return records[0];
-	}
-	
-	public void deleteAt(int index)
-	{
-		for(int i = index; i < numberOfKeys - 1; ++i)
 		{
-			keys[i] = keys[i+1];
-			records[i] = records[i+1];
+			System.out.println(foreignNode.getKey(i));
+			this.insertAt(numberOfKeys, foreignNode.getKey(i), foreignNode.getRecord(i));
 		}
-		numberOfKeys--;
+		this.setNext(foreignNode.getNext());
 	}
-
 }
