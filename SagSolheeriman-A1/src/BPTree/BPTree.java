@@ -1,13 +1,13 @@
 package BPTree;
 
-public class BPTree<T> {
+public class BPTree<T extends Comparable<T>> {
 
 	private int n;
 	private int NonLeafMinptrs;
 	private int NonLeafMinKeys;
 	private int LeafMinPtrs;
 	private int LeafMinKeys;
-	private BPTreeLeafNode root;
+	private BPTreeInnerNode<T> root;
 
 	public BPTree(int n) 
 	{
@@ -15,8 +15,7 @@ public class BPTree<T> {
 		NonLeafMinptrs = (n + 2) / 2;
 		NonLeafMinKeys = NonLeafMinptrs - 1;
 		LeafMinPtrs = LeafMinKeys = (n + 1) / 2;
-		
-		this.root = new BPTreeLeafNode(n);
+		root = new BPTreeInnerNode<T>(n);
 	}
 
 	
@@ -32,9 +31,9 @@ public class BPTree<T> {
 	/**
 	 * Delete a key and its associated value from the tree.
 	 */
-	public void delete(T key)
+	public boolean delete(T key)
 	{
-		//TODO
+		return root.delete(key);
 	}
 	
 	/**

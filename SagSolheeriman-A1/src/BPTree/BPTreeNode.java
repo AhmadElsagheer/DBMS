@@ -35,5 +35,7 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 	public abstract int search(T key);
 
 	public abstract BPTreeNode<T> split();
+	
+	public abstract boolean delete(T key);
 
 }

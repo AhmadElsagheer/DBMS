@@ -3,7 +3,7 @@ package BPTree;
 public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T> 
 {
 	protected BPTreeNode<T>[] children;
-
+	
 	@SuppressWarnings("unchecked")
 	public BPTreeInnerNode(int n) 
 	{
@@ -67,9 +67,18 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 	 * splitted and new node When splits an Inner node, the middle key is pushed
 	 * to parent node.
 	 */
-	public BPTreeNode split() {
+	public BPTreeNode<T> split() 
+	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public boolean delete(T key) 
+	{
+		for(int i = 0; i < numberOfKeys; ++i)
+			if(keys[i].compareTo(key) > 0)
+				return children[i].delete(key);
+		return children[numberOfKeys].delete(key);
 	}
 
 }
