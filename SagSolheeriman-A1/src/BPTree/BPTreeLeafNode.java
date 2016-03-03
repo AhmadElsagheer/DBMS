@@ -46,11 +46,6 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		++numberOfKeys;
 	}
 
-	public boolean delete(T key) 
-	{
-		// TODO
-		return false;
-	}
 
 	private void deleteAt(int index) 
 	{
@@ -81,6 +76,24 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 					break;
 		}
 		return -1;
+	}
+	
+	public boolean delete(T key) 
+	{
+		for(int i = 0; i < numberOfKeys; ++i)
+			if(keys[i].compareTo(key) == 0)
+			{
+				//shift remaining keys and records
+				while(i < numberOfKeys - 1)
+				{
+					keys[i] = keys[i+1];
+					records[i] = records[i+1];
+					i--;
+				}
+				numberOfKeys--;
+				return true;
+			}
+		return false;
 	}
 
 
