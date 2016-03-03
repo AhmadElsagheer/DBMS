@@ -24,11 +24,21 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 		keys[index] = comparable;
 	}
 
+	/**
+	 * Tell me whether the node is in overflow mode or not .
+	 * @return
+	 */
 	public boolean ifFull() 
 	{
 		return numberOfKeys == ORDER;
 	}
 	
+	/**
+	 * Helper method to handle overflow
+	 * split the overflow node and go to the parent to adjust pointers and so on until no overflow occurs 
+	 * @param recStack : contains parents .
+	 * @return
+	 */
 	public BPTreeNode<T> dealOverflow(Stack<BPTreeNode<T>>recStack) {
 		int midIndex = this.numberOfKeys / 2;
 		BPTreeNode<T> parent = recStack.pop();
@@ -37,14 +47,10 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 		
 		BPTreeNode<T> newRNode = this.split();
 				
-		if (parent == null) {   
+		if (parent == null)    
 			parent = (BPTreeInnerNode<T>) new BPTreeInnerNode<T>(ORDER);
-		}
-//		-------------------------------------
-//		|  maintain links of sibling nodes	|
-//		-------------------------------------
 		
-		
+
 		// push up a key to parent internal node
 		return parent.pushUpKey(upKey, this, newRNode , recStack);
 	}

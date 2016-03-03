@@ -39,6 +39,12 @@ public class BPTree<T extends Comparable<T>> {
 		}
 	}
 	
+	/**
+	 * Insertion Helper method to search the tree to find the target leaf node 
+	 * RecStack keeps track of parents to be used in overflow situations !..
+	 * @param key
+	 * @return
+	 */
 	private BPTreeLeafNode<T> findTargetLeafNode(T key) {
 		BPTreeNode<T> curNode = root;
 		 recStack = new Stack<BPTreeNode<T>>();

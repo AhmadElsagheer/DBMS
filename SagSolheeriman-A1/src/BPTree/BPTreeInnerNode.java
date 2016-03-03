@@ -93,6 +93,10 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 	}
 
 	@Override
+	/**
+	 * This method takes key and 2 nodes , old and new created one to insert a new navigation key with adjusting pointers
+	 * recStack : containing parents.
+	 */
 	protected BPTreeNode<T> pushUpKey(T key, BPTreeNode<T> leftChild, BPTreeNode<T> rightNode , Stack<BPTreeNode<T>> recStack) {
 		// find the target position of the new key
 				int index = this.search(key);
@@ -105,6 +109,7 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 					return this.dealOverflow(recStack);
 				else
 				{
+					// No parent for me so I am the root . Check in the calling method to adjust the root of the tree .
 					if(recStack.isEmpty())
 						return this;
 					else
