@@ -11,8 +11,9 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 	public BPTreeLeafNode(int n) 
 	{
 		super(n);
-		keys = new Comparable[n];
-		records = new Ref[n];
+		// added padding to the arrays to handle testing overflow .
+		keys = new Comparable[n+1];
+		records = new Ref[n+1];
 
 	}
 	public BPTreeLeafNode<T> getNext(){

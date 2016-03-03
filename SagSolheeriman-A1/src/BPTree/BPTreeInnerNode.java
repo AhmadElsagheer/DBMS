@@ -10,8 +10,8 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>
 	public BPTreeInnerNode(int n) 
 	{
 		super(n);
-		keys = new Comparable[n];
-		children = new BPTreeNode[n + 1];
+		keys = new Comparable[n+1];
+		children = new BPTreeNode[n + 2];
 	}
 
 	public BPTreeNode<T> getChild(int index) 

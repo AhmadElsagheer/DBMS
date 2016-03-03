@@ -30,7 +30,7 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 	 */
 	public boolean ifFull() 
 	{
-		return numberOfKeys == ORDER;
+		return numberOfKeys == keys.length;
 	}
 	
 	/**

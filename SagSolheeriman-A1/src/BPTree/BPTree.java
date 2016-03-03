@@ -106,7 +106,10 @@ public class BPTree<T extends Comparable<T>> {
 		tree.insert(6, null);
 		tree.insert(9, null);
 		tree.insert(14, null);
-//		tree.insert(20, null);
+		tree.insert(20, null);
+		tree.insert(5, null);
+		tree.insert(8, null);
+
 		System.out.println(tree.toString());
 	}
 	
