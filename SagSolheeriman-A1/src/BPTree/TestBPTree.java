@@ -8,20 +8,22 @@ public class TestBPTree {
 	{
 		BPTree<Integer> tree = new BPTree<Integer>(4);
 		Scanner sc = new Scanner(System.in);
-		for (int i = 0; i < 10; i++) 
+		while(true) 
 		{
-			tree.insert(sc.nextInt(), null);
+			int x = sc.nextInt();
+			if(x == -1)
+				break;
+			tree.insert(x, null);
 			System.out.println(tree.toString());
-
 		}
-		
-		for (int i = 0; i < 10; i++) 
+		while(true) 
 		{
-			tree.delete(sc.nextInt());
+			int x = sc.nextInt();
+			if(x == -1)
+				break;
+			tree.delete(x);
 			System.out.println(tree.toString());
-
 		}
 		sc.close();
-	}
-	
+	}	
 }

@@ -1,5 +1,8 @@
 package BPTree;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class BPTree<T extends Comparable<T>> {
 
 	private int order;
@@ -27,6 +30,7 @@ public class BPTree<T extends Comparable<T>> {
 		if(pushUp != null)
 		{
 			BPTreeInnerNode<T> newRoot = new BPTreeInnerNode<T>(order);
+			System.out.println("Testing creating new root: " + pushUp.key);
 			newRoot.insertLeftAt(0, pushUp.key, root);
 			newRoot.setChild(1, pushUp.newNode);
 			root.setRoot(false);
@@ -65,29 +69,38 @@ public class BPTree<T extends Comparable<T>> {
 	 */
 	public String toString()
 	{	
-		String s = "";
-		BPTreeNode<T> curNode = this.root;
-		while(curNode instanceof BPTreeInnerNode) 
-			curNode = ((BPTreeInnerNode<T>) curNode).getFirstChild();
 		
-		BPTreeLeafNode<T> curLeaf = (BPTreeLeafNode<T>) curNode;
-	
-		while(curLeaf != null)
+		//	<For Testing>
+		// node :  (id)[k1|k2|k3|k4]{P1,P2,P3,}
+		String s = "";
+		Queue<BPTreeNode<T>> cur = new LinkedList<BPTreeNode<T>>(), next;
+		cur.add(root);
+		while(!cur.isEmpty())
 		{
-			s += "[";
-			for (int i = 0; i < order; i++)
+			next = new LinkedList<BPTreeNode<T>>();
+			while(!cur.isEmpty())
 			{
-				String key = " ";
-				if(i < curLeaf.numberOfKeys)
-					key = curLeaf.keys[i].toString();
-				s+= key;
-				if(i < order - 1)
-					 s += "|";
+				BPTreeNode<T> curNode = cur.remove();
+				System.out.print(curNode);
+				if(curNode instanceof BPTreeLeafNode)
+					System.out.print("->");
+				else
+				{
+					System.out.print("{");
+					BPTreeInnerNode<T> parent = (BPTreeInnerNode<T>) curNode;
+					for(int i = 0; i <= parent.numberOfKeys; ++i)
+					{
+						System.out.print(parent.getChild(i).index+",");
+						next.add(parent.getChild(i));
+					}
+					System.out.print("} ");
+				}
+				
 			}
-			s += "]";
-			if((curLeaf = curLeaf.getNext()) != null)
-				s += " -> ";
+			System.out.println();
+			cur = next;
 		}	
+		//	</For Testing>
 		return s;
 	}
 }
