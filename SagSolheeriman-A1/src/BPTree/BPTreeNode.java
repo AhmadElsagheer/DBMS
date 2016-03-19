@@ -1,14 +1,17 @@
 package BPTree;
 
 public abstract class BPTreeNode<T extends Comparable<T>> {
-
+	
 	protected Comparable<T>[] keys;
 	protected int numberOfKeys;
 	protected int order;
+	protected int index;		//for printing the tree
 	private boolean isRoot;
+	private static int nextIdx = 0;
 
 	public BPTreeNode(int order) 
 	{
+		index = nextIdx++;
 		numberOfKeys = 0;
 		this.order = order;
 	}
@@ -57,7 +60,7 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 	
 	public String toString()
 	{		
-		String s = "";
+		String s = "(" + index + ")";
 
 		s += "[";
 		for (int i = 0; i < order; i++)
@@ -65,6 +68,7 @@ public abstract class BPTreeNode<T extends Comparable<T>> {
 			String key = " ";
 			if(i < numberOfKeys)
 				key = keys[i].toString();
+			
 			s+= key;
 			if(i < order - 1)
 				s += "|";

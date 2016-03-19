@@ -184,7 +184,7 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 		}
 		
 		//check right sibling
-		if(ptr <= parent.numberOfKeys)
+		if(ptr < parent.numberOfKeys)
 		{
 			BPTreeLeafNode<T> rightSibling = (BPTreeLeafNode<T>) parent.getChild(ptr+1);
 			if(rightSibling.numberOfKeys > rightSibling.minKeys())
@@ -218,12 +218,9 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
 	
 	public void merge(BPTreeLeafNode<T> foreignNode)
 	{
-		System.out.println(foreignNode);
 		for(int i = 0; i < foreignNode.numberOfKeys; ++i)
-		{
-			System.out.println(foreignNode.getKey(i));
 			this.insertAt(numberOfKeys, foreignNode.getKey(i), foreignNode.getRecord(i));
-		}
+		
 		this.setNext(foreignNode.getNext());
 	}
 }
