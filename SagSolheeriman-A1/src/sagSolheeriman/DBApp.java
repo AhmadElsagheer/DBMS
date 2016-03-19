@@ -309,9 +309,10 @@ public class DBApp {
     	return table;
     }
 
-    public void createIndex(String strTableName, String strColName)  throws DBEngineException
+    public void createIndex(String strTableName, String strColName)  throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException
     {
-    	
+    	Table table = this.getTable(strTableName);
+    	table.createIndex(strColName);
     }
 
     /**

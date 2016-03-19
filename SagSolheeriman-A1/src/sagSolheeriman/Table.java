@@ -192,6 +192,7 @@ public class Table implements Serializable {
 		 	String type = colTypes.get(strColName);
 		 	int colPos = colIndex.get(strColName);
 		 	BPTree tree = null;
+		 
 		 	if(type.equals("Integer"))
 		 		tree = new BPTree<Integer>(150);
 		 	if(type.equals("String"))
@@ -217,7 +218,6 @@ public class Table implements Serializable {
 					Record r = p.get(i);
 					Ref recordReference = new Ref(index, i);
 					tree.insert((Comparable) r.get(colPos), recordReference);
-
 				}
 		 	}
 	  }
