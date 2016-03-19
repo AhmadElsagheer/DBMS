@@ -8,12 +8,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.TreeMap;
 import java.util.Map.Entry;
+
+import BPTree.BPTree;
 
 public class Table implements Serializable {
 
@@ -27,6 +31,7 @@ public class Table implements Serializable {
 	private String path, tableName, tableHeader, primaryKey;
 	private Hashtable<String, String> colTypes, colRefs;
 	private Hashtable<String, Integer> colIndex;
+	private Hashtable<String,BPTree> colNameIndex;
 
 	/**
 	 * Create a new table with the specified parameter list

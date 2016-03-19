@@ -31,8 +31,6 @@ public class DBApp {
 	private File metadata;
 	private TreeSet<String> dataTypes;
 	private Properties dbProps;
-	private ArrayList<BPTree> Indicies;
-	private TreeMap<String,BPTree> colIndex;
 	
 	/**
 	 * Initialize a new database with the specified and maximum number of records per page.
@@ -44,8 +42,6 @@ public class DBApp {
 	public void init(String dbName, Integer MaximumRowsCountinPage) throws IOException
 	{
 		this.dbName = dbName;
-		this.Indicies = new ArrayList<BPTree>();
-		this.colIndex = new TreeMap<String,BPTree>();
 		// drop any existing database with this name
 		dropDatabase(dbName);
 
@@ -315,7 +311,7 @@ public class DBApp {
 
     public void createIndex(String strTableName, String strColName)  throws DBEngineException
     {
-    	//To be implemented in submission 4
+    	
     }
 
     /**
