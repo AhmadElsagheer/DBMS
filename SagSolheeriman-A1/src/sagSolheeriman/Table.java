@@ -8,16 +8,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import BPTree.BPTree;
+import BPTree.Ref;
 
 public class Table implements Serializable {
 
@@ -54,6 +53,7 @@ public class Table implements Serializable {
 		this.maxTuplesPerPage = maxTuplesPerPage;
 		this.curPageIndex = -1;
 		this.numOfColumns =  0;
+		this.colNameIndex = new Hashtable<String,BPTree>();
 		initializeColumnsIndexes();
 		createDirectory();
 		createPage();
@@ -186,6 +186,24 @@ public class Table implements Serializable {
 			}
 		}
 	}
+	
+	
+	 public void createIndex(String strColName)  throws DBEngineException {
+		 	String type = colTypes.get(strColName);
+		 	BPTree tree = null;
+		 	if(type.equals("Integer"))
+		 		tree = new BPTree<Integer>(150);
+		 	if(type.equals("String"))
+		 		tree = new BPTree<String>(150);
+		 	if(type.equals("Date"))
+		 		tree = new BPTree<Date>(150);
+		 	if(type.equals("Double"))
+		 		tree = new BPTree<Double>(150);
+		 	
+		 	colNameIndex.put(strColName, tree);
+		 	
+		 	
+	  }
 
 	/**
 	 * @param htblColNameValue
