@@ -188,8 +188,9 @@ public class Table implements Serializable {
 	}
 	
 	
-	 public void createIndex(String strColName)  throws DBEngineException {
+	 public void createIndex(String strColName)  throws DBEngineException, FileNotFoundException, IOException, ClassNotFoundException {
 		 	String type = colTypes.get(strColName);
+		 	int colPos = colIndex.get(strColName);
 		 	BPTree tree = null;
 		 	if(type.equals("Integer"))
 		 		tree = new BPTree<Integer>(150);
@@ -202,7 +203,23 @@ public class Table implements Serializable {
 		 	
 		 	colNameIndex.put(strColName, tree);
 		 	
-		 	
+		 	/**
+		 	 * Insertion using BPTree :
+		 	 */
+			ObjectInputStream ois;
+		 	for (int index = 0; index <= curPageIndex; index++) {
+				File f = new File(path + tableName + "_" + index+".class");
+				
+		    	ois = new ObjectInputStream(new FileInputStream(f));
+		    	Page p = (Page) ois.readObject();
+				for(int i = 0; i < p.size(); ++i)
+				{
+					Record r = p.get(i);
+					Ref recordReference = new Ref(index, i);
+					tree.insert((Comparable) r.get(colPos), recordReference);
+
+				}
+		 	}
 	  }
 
 	/**
