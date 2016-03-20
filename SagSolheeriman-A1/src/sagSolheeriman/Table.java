@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
-import javax.sound.midi.Synthesizer;
 
 import java.util.Stack;
 
@@ -198,7 +197,14 @@ public class Table implements Serializable {
 		}
 	}
 	
-	
+	/**
+	 * create index on specified column name by creating BPTree on that column and inserting in it.
+	 * @param strColName The name of the column which index is created on
+	 * @throws DBEngineException If columns, foreign keys or the primary key are not valid
+	 * @throws FileNotFoundException If an error occurred in the stored table file
+	 * @throws IOException If an I/O error occurred
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 */
 	 @SuppressWarnings({ "unchecked", "rawtypes" })
 	public void createIndex(String strColName)  throws DBEngineException, FileNotFoundException, IOException, ClassNotFoundException {
 		 	String type = colTypes.get(strColName);
@@ -234,6 +240,7 @@ public class Table implements Serializable {
 	  }
 
 	/**
+	 * insert record in table with specified column values.
 	 * @param htblColNameValue
 	 * @return a boolean to indicate a successful or failed insertion operation
 	 * @throws DBEngineException If columns, foreign keys or the primary key are not valid
@@ -460,6 +467,15 @@ public class Table implements Serializable {
 		return answer.listIterator();
 	}
 	
+	/**
+	 * Select all records from the table that matches the specified column name-value pairs using index if exists .
+	 * @param htblColNameValue the column name-value pairs to which records will be compared
+	 * @param operator the conditional operator to be executed ("AND, "OR" only)
+	 * @return an iterator pointing to the first record in the result set
+	 * @throws IOException If an I/O error occurred
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 * @throws FileNotFoundException If an error occurred in the stored table file
+	 */
 	public Iterator<Record> selectWithIndex(Hashtable<String, Object> htblColNameValue, boolean operator) throws FileNotFoundException, IOException, ClassNotFoundException{
 		
 		String indexColumn = null;
@@ -483,7 +499,13 @@ public class Table implements Serializable {
 				answer.add(r);
 			return answer.listIterator();
 	}
-	
+	/**
+	 * @param recordReference reference to where the record is located in which page and in which index in that page
+	 * @return record in the specified reference.
+	 * @throws IOException If an I/O error occurred
+	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
+	 * @throws FileNotFoundException If an error occurred in the stored table file
+	 */
 	public Record fetchRecordByReference(Ref recordReference) throws FileNotFoundException, IOException, ClassNotFoundException{
 		
 		if(recordReference == null)
@@ -526,7 +548,10 @@ public class Table implements Serializable {
 		this.saveTable();
 		return deletedRecords;
 	}
-	
+	/**
+	 * deleting specified record columns' values from corresponding BPTrees if exist.
+	 * @param record
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void delete(Record record)
 	{
