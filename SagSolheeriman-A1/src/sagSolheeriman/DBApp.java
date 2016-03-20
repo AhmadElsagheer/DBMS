@@ -10,11 +10,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.TreeSet;
+
+import BPTree.BPTree;
+
 
 public class DBApp {
 	
@@ -25,7 +30,7 @@ public class DBApp {
 	private String dbName, dbDirectory;
 	private File metadata;
 	private TreeSet<String> dataTypes;
-	private Properties dbProps; 
+	private Properties dbProps;
 	
 	/**
 	 * Initialize a new database with the specified and maximum number of records per page.
@@ -37,7 +42,6 @@ public class DBApp {
 	public void init(String dbName, Integer MaximumRowsCountinPage) throws IOException
 	{
 		this.dbName = dbName;
-		
 		// drop any existing database with this name
 		dropDatabase(dbName);
 
@@ -305,9 +309,10 @@ public class DBApp {
     	return table;
     }
 
-    public void createIndex(String strTableName, String strColName)  throws DBEngineException
+    public void createIndex(String strTableName, String strColName)  throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException
     {
-    	//To be implemented in submission 4
+    	Table table = this.getTable(strTableName);
+    	table.createIndex(strColName);
     }
 
     /**
