@@ -57,7 +57,6 @@ public class Table implements Serializable {
 		this.curPageIndex = -1;
 		this.numOfColumns =  0;
 		this.colNameIndex = new Hashtable<String,BPTree>();
-		// create index on Primary key
 		
 		this.createIndex(primaryKey);
 		
@@ -229,7 +228,6 @@ public class Table implements Serializable {
 				ois.close();
 		 	}
 		 	
-		 	// save table :
 		 	this.saveTable();
 	
 	  }
@@ -272,7 +270,7 @@ public class Table implements Serializable {
 		r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
 		addRecord(r);
 		while(!indexedCol.isEmpty()) 
-			insert(indexedCol.peek(),htblColNameValue.get(indexedCol.pop())); // helper method to handle insertion in BPTree
+			insert(indexedCol.peek(),htblColNameValue.get(indexedCol.pop())); 
 		return true;
 
 	}
@@ -287,18 +285,14 @@ public class Table implements Serializable {
 	 */
 	private void insert(String colName ,Object value) throws FileNotFoundException, IOException, ClassNotFoundException{
 		
-		// 1. get the BPtree on that column.
 		BPTree tree = colNameIndex.get(colName); 
-		// 2. open the page to get the index of the record in the page.
 		File f = new File(path + tableName + "_" + curPageIndex+".class");
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
 		Page curPage = (Page) ois.readObject();
-		Ref recordReference = new Ref(curPageIndex, curPage.getnElements());
+		Ref recordReference = new Ref(curPageIndex, curPage.size());
 		tree.insert((Comparable) value, recordReference);
-		// 3. close stream.
 		ois.close();
 		
-		// 4. save the table.
 		this.saveTable();
 	}
 	

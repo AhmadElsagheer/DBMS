@@ -15,9 +15,7 @@ public class Page implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private int maxSize, nElements;
-	public int getnElements() {
-		return nElements;
-	}
+
 
 	private Record[] records;
 	private String path;
