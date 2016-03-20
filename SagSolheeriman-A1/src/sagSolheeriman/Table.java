@@ -521,8 +521,7 @@ public class Table implements Serializable {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void delete(Record record)
 	{
-		Hashtable<String,Integer> htblColIndex = this.colIndex;
-		for(Entry<String,Integer> entry : htblColIndex.entrySet())
+		for(Entry<String,Integer> entry : this.colIndex.entrySet())
 		{
 			String colName = entry.getKey();
 			int colIndex = entry.getValue();
