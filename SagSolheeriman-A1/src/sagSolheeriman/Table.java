@@ -42,9 +42,11 @@ public class Table implements Serializable {
 	 * @param strKeyColName the primary key of the table
 	 * @param maxTuplesPerPage the maximum number of records a page can hold
 	 * @throws IOException If an I/O error occurred
+	 * @throws DBEngineException 
+	 * @throws ClassNotFoundException 
 	 */
 	public Table(String path, String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage) throws IOException{
+            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage) throws IOException, ClassNotFoundException, DBEngineException{
 		
 		this.path = path + strTableName + "/";
 		this.tableName = strTableName;
@@ -55,6 +57,10 @@ public class Table implements Serializable {
 		this.curPageIndex = -1;
 		this.numOfColumns =  0;
 		this.colNameIndex = new Hashtable<String,BPTree>();
+		// create index on Primary key
+		
+		this.createIndex(primaryKey);
+		
 		initializeColumnsIndexes();
 		createDirectory();
 		createPage();
