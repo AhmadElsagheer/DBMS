@@ -284,6 +284,7 @@ public class Table implements Serializable {
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
 	 * @throws IOException If an I/O error occurred
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean update(Object strKey, Hashtable<String, Object> htblColNameValue) throws DBEngineException, ClassNotFoundException, IOException {
 		
 //		1. check column names and types
@@ -300,30 +301,36 @@ public class Table implements Serializable {
 		
 //		3. check the foreign keys
 		checkForeignKeyes(htblColNameValue);
+		BPTree tree = this.colNameIndex.get(primaryKey);
+		Ref recordReference = tree.search((Comparable) strKey);
+		recordReference.getPage();
+		recordReference.getIndexInPage();
 		
-		int primaryKeyIndex = colIndex.get(primaryKey);
 		ObjectInputStream ois;
-		for (int index = 0; index <= curPageIndex; index++) {
-			File f = new File(path + tableName + "_" + index+".class");
-			
-	    	ois = new ObjectInputStream(new FileInputStream(f));
-	    	Page p = (Page) ois.readObject();
-			for(int i = 0; i < p.size(); ++i)
-			{
-				Record r = p.get(i);
-				if(r != null && r.get(primaryKeyIndex).equals(strKey))
-				{
-					for(Entry<String, Object> entry: htblColNameValue.entrySet())
-						r.addValue(colIndex.get(entry.getKey()), entry.getValue());
-					r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
-					p.save();
-					ois.close();
-					return true;
-				}
-			}
-			ois.close();
-		}
-		return false;
+		File f = new File(path + tableName + "_" + index+".class");
+//		int primaryKeyIndex = colIndex.get(primaryKey);
+//		ObjectInputStream ois;
+//		for (int index = 0; index <= curPageIndex; index++) {
+//			File f = new File(path + tableName + "_" + index+".class");
+//			
+//	    	ois = new ObjectInputStream(new FileInputStream(f));
+//	    	Page p = (Page) ois.readObject();
+//			for(int i = 0; i < p.size(); ++i)
+//			{
+//				Record r = p.get(i);
+//				if(r != null && r.get(primaryKeyIndex).equals(strKey))
+//				{
+//					for(Entry<String, Object> entry: htblColNameValue.entrySet())
+//						r.addValue(colIndex.get(entry.getKey()), entry.getValue());
+//					r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
+//					p.save();
+//					ois.close();
+//					return true;
+//				}
+//			}
+//			ois.close();
+//		}
+//		return false;
 	}
 
 	/**
