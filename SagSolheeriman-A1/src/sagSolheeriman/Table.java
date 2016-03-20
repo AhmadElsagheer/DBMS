@@ -26,10 +26,11 @@ public class Table implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private int maxTuplesPerPage, curPageIndex, numOfColumns;
+	private int maxTuplesPerPage, indexOrder, curPageIndex, numOfColumns;
 	private String path, tableName, tableHeader, primaryKey;
 	private Hashtable<String, String> colTypes, colRefs;
 	private Hashtable<String, Integer> colIndex;
+	@SuppressWarnings("rawtypes")
 	private Hashtable<String,BPTree> colNameIndex;
 
 	/**
@@ -44,9 +45,10 @@ public class Table implements Serializable {
 	 * @throws DBEngineException 
 	 * @throws ClassNotFoundException 
 	 */
+	@SuppressWarnings("rawtypes")
 	public Table(String path, String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage) throws IOException, ClassNotFoundException, DBEngineException{
-		
+            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage, int indexOrder) throws IOException, ClassNotFoundException, DBEngineException{
+
 		this.path = path + strTableName + "/";
 		this.tableName = strTableName;
 		this.primaryKey = strKeyColName;
@@ -55,10 +57,10 @@ public class Table implements Serializable {
 		this.maxTuplesPerPage = maxTuplesPerPage;
 		this.curPageIndex = -1;
 		this.numOfColumns =  0;
+		this.indexOrder = indexOrder;
 		this.colNameIndex = new Hashtable<String,BPTree>();
-		
+	
 		this.createIndex(primaryKey);
-		
 		initializeColumnsIndexes();
 		createDirectory();
 		createPage();
@@ -193,25 +195,23 @@ public class Table implements Serializable {
 	}
 	
 	
-	 public void createIndex(String strColName)  throws DBEngineException, FileNotFoundException, IOException, ClassNotFoundException {
+	 @SuppressWarnings({ "unchecked", "rawtypes" })
+	public void createIndex(String strColName)  throws DBEngineException, FileNotFoundException, IOException, ClassNotFoundException {
 		 	String type = colTypes.get(strColName);
 		 	int colPos = colIndex.get(strColName);
 		 	BPTree tree = null;
 		 
 		 	if(type.equals("Integer"))
-		 		tree = new BPTree<Integer>(150);
+		 		tree = new BPTree<Integer>(indexOrder);
 		 	if(type.equals("String"))
-		 		tree = new BPTree<String>(150);
+		 		tree = new BPTree<String>(indexOrder);
 		 	if(type.equals("Date"))
-		 		tree = new BPTree<Date>(150);
+		 		tree = new BPTree<Date>(indexOrder);
 		 	if(type.equals("Double"))
-		 		tree = new BPTree<Double>(150);
+		 		tree = new BPTree<Double>(indexOrder);
 		 	
-		 	colNameIndex.put(strColName, tree);
+		 	colNameIndex.put(strColName, tree);	 	
 		 	
-		 	/**
-		 	 * Insertion using BPTree :
-		 	 */
 			ObjectInputStream ois;
 		 	for (int index = 0; index <= curPageIndex; index++) {
 				File f = new File(path + tableName + "_" + index+".class");
@@ -226,9 +226,7 @@ public class Table implements Serializable {
 				}
 				ois.close();
 		 	}
-		 	
 		 	this.saveTable();
-	
 	  }
 
 	/**
@@ -238,6 +236,7 @@ public class Table implements Serializable {
 	 * @throws IOException If an I/O error occurred
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean insert(Hashtable<String, Object> htblColNameValue) throws DBEngineException, ClassNotFoundException, IOException {
 
 //		1. check column names and types
@@ -267,9 +266,9 @@ public class Table implements Serializable {
 			r.addValue(colIndex.get(colName), value);
 		}
 		r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
-		addRecord(r);
+		Page page = addRecord(r);
 		while(!indexedCol.isEmpty()) 
-			insert(indexedCol.peek(),htblColNameValue.get(indexedCol.pop())); 
+			colNameIndex.get(indexedCol.peek()).insert((Comparable) htblColNameValue.get(indexedCol.pop()), new Ref(curPageIndex, page.size()-1)); 
 		return true;
 
 	}
@@ -333,7 +332,7 @@ public class Table implements Serializable {
 	 * @throws IOException If an I/O error occurred
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
 	 */
-	private void addRecord(Record record) throws IOException, ClassNotFoundException {
+	private Page addRecord(Record record) throws IOException, ClassNotFoundException {
 
 		File f = new File(path + tableName + "_" + curPageIndex+".class");
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
@@ -342,6 +341,7 @@ public class Table implements Serializable {
 			curPage = createPage();
 		curPage.addRecord(record);
 		ois.close();
+		return curPage;
 	}
 	
 	/**

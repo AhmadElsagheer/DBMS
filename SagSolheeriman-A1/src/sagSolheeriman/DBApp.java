@@ -10,15 +10,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.TreeSet;
-
-import BPTree.BPTree;
 
 
 public class DBApp {
@@ -39,7 +35,7 @@ public class DBApp {
 	 * @param MaximumRowsCountinPage maximum number of records per table page
 	 * @throws IOException If an I/O error occurred
 	 */
-	public void init(String dbName, Integer MaximumRowsCountinPage) throws IOException
+	public void init(String dbName, Integer maximumRowsCountinPage, Integer indexOrder) throws IOException
 	{
 		this.dbName = dbName;
 		// drop any existing database with this name
@@ -51,7 +47,8 @@ public class DBApp {
 		
 		// initialize config file
 		dbProps = new Properties();
-		dbProps.put("MaximumRowsCountinPage", MaximumRowsCountinPage.toString());
+		dbProps.put("MaximumRowsCountinPage", indexOrder.toString());
+		dbProps.put("IndexOrder", maximumRowsCountinPage.toString());
 		new File(dbDirectory+"/config").mkdirs();
 		File config = new File(dbDirectory+"/config/DBApp.config");
 		config.createNewFile();
@@ -257,9 +254,10 @@ public class DBApp {
 	 * @param strKeyColName the primary key of the table (only one column)
 	 * @throws DBEngineException If the name, column types or foreign keys are not valid
 	 * @throws IOException If an I/O error occurred 
+	 * @throws ClassNotFoundException 
 	 */
     public void createTable(String strTableName, Hashtable<String,String> htblColNameType, 
-                            Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBEngineException, IOException{
+                            Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBEngineException, IOException, ClassNotFoundException{
     	
     	// A.Check constraints
     	
@@ -286,7 +284,8 @@ public class DBApp {
     	
     	// D. Create new table and store the table object in a binary file
     	int maxTuplesPerPage = Integer.parseInt(dbProps.getProperty("MaximumRowsCountinPage"));
-    	new Table(dbDirectory, strTableName, htblColNameType, htblColNameRefs, strKeyColName, maxTuplesPerPage);
+    	int indexOrder =  Integer.parseInt(dbProps.getProperty("IndexOrder"));
+    	new Table(dbDirectory, strTableName, htblColNameType, htblColNameRefs, strKeyColName, maxTuplesPerPage, indexOrder);
     	System.out.println("Table is created successfully: " + strTableName);
     }
 
@@ -311,8 +310,16 @@ public class DBApp {
 
     public void createIndex(String strTableName, String strColName)  throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException
     {
+
+//    	 TODO: 
+//    	1. make an index for the primary key of any table
+//    	2. update the index for any update/delete/insert query
+//    	3. use the index for queries on columns that have this index
+//    	4. save the BPTree on the Hard Disk
+//    	5. max nodes is defined in config file
     	Table table = this.getTable(strTableName);
     	table.createIndex(strColName);
+
     }
 
     /**
