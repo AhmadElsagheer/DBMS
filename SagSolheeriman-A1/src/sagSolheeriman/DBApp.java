@@ -307,7 +307,12 @@ public class DBApp {
 
     public void createIndex(String strTableName, String strColName)  throws DBEngineException
     {
-    	//To be implemented in submission 4
+//    	 TODO: 
+//    	1. create index for any new table on the primary key (in createTable method) 
+//    	2. update the index for any update/delete/insert query
+//    	3. use the index for queries on columns that have this index
+//    	4. save the BPTree on the Hard Disk
+//    	5. max nodes is defined in config file
     }
 
     /**

@@ -9,5 +9,4 @@ public class Ref {
 		this.pageNo = pageNo;
 		this.indexInPage = indexInPage;
 	}
-
 }
