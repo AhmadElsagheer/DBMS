@@ -324,14 +324,13 @@ public class Table implements Serializable {
 				 tree.delete((Comparable) r.get(index));
 			}
 		}
-		Ref reference  = new Ref(pageNo, indexInPage);
 		for(Entry<String, Object> entry: htblColNameValue.entrySet())
 		{
 			String colName = entry.getKey();
 			Object colValue = entry.getValue();
 			if(this.colNameIndex.containsKey(colName)){
 				tree = colNameIndex.get(colName);
-				tree.insert((Comparable) colValue, reference);
+				tree.insert((Comparable) colValue, recordReference);
 			}
 		}
 		
