@@ -29,7 +29,7 @@ public class DBAppTest {
 //		1. Start a session
 		DBApp myDB = new DBApp();
 		tests(myDB);
-		testUpdate(myDB);
+//		testUpdate(myDB);
 //		customize tests here...	
 	}
 	
@@ -87,69 +87,69 @@ public class DBAppTest {
 		scTblColNameRefs.put("Course_ID", "Course.ID");
 		myDB.createTable("Student_in_Course", scTblColNameType, scTblColNameRefs, "ID");
 
-//		8. Insert in table "Faculty"
-		Hashtable<String,Object> ftblColNameValue1 = new Hashtable<String,Object>();
-		ftblColNameValue1.put("ID", 1);
-		ftblColNameValue1.put("Name", "Media Engineering and Technology");
-		myDB.insertIntoTable("Faculty", ftblColNameValue1);
-
-		Hashtable<String,Object> ftblColNameValue2 = new Hashtable<String,Object>();
-		ftblColNameValue2.put("ID", 2);
-		ftblColNameValue2.put("Name", "Management Technology");
-		myDB.insertIntoTable("Faculty", ftblColNameValue2);
-
-		for(int i=1;i<1000;i++)
-		{
-			Hashtable<String,Object> ftblColNameValueI = new Hashtable<String,Object>();
-			ftblColNameValueI.put("ID", i+2);
-			ftblColNameValueI.put("Name", "f"+(i+2));
-			myDB.insertIntoTable("Faculty", ftblColNameValueI);
-		}
-
-//		9. Insert in table "Major"
-		Hashtable<String,Object> mtblColNameValue1 = new Hashtable<String,Object>();
-		mtblColNameValue1.put("ID", 1);
-		mtblColNameValue1.put("Name", "Computer Science & Engineering");
-		mtblColNameValue1.put("Faculty_ID", 1);
-		myDB.insertIntoTable("Major", mtblColNameValue1);
-
-		Hashtable<String,Object> mtblColNameValue2 = new Hashtable<String,Object>();
-		mtblColNameValue2.put("ID", 2);
-		mtblColNameValue2.put("Name", "Business Informatics");
-		mtblColNameValue2.put("Faculty_ID", 2);
-		myDB.insertIntoTable("Major", mtblColNameValue2);
-
-		for(int i=1;i<1000;i++)
-		{
-			Hashtable<String,Object> mtblColNameValueI = new Hashtable<String,Object>();
-			mtblColNameValueI.put("ID", i+2);
-			mtblColNameValueI.put("Name", "m"+(i+2));
-			mtblColNameValueI.put("Faculty_ID", rand.nextInt(1001) + 1);
-			myDB.insertIntoTable("Major", mtblColNameValueI);
-		}
-
-
-//		10. Insert in table "Course"
-		Hashtable<String,Object> ctblColNameValue1 = new Hashtable<String,Object>();
-		ctblColNameValue1.put("ID", Integer.valueOf( "1" ) );
-		ctblColNameValue1.put("Name", "Data Bases II");
-		ctblColNameValue1.put("Code", "CSEN 604");
-		ctblColNameValue1.put("Hours", rand.nextInt(7) + 2);
-		ctblColNameValue1.put("Semester", rand.nextInt(10) + 1);
-		ctblColNameValue1.put("Major_ID", rand.nextInt(1001) + 1);		
-		myDB.insertIntoTable("Course", ctblColNameValue1);
-
-		for(int i=1;i<1000;i++)
-		{
-			Hashtable<String,Object> ctblColNameValueI = new Hashtable<String,Object>();
-			ctblColNameValueI.put("ID", i+2);
-			ctblColNameValueI.put("Name", "c"+(i+2));
-			ctblColNameValueI.put("Code", "co "+(i+2));
-			ctblColNameValueI.put("Hours", rand.nextInt(7) + 2);
-			ctblColNameValueI.put("Semester", rand.nextInt(10) + 1);
-			ctblColNameValueI.put("Major_ID", rand.nextInt(1001) + 1);
-			myDB.insertIntoTable("Course", ctblColNameValueI);
-		}
+////		8. Insert in table "Faculty"
+//		Hashtable<String,Object> ftblColNameValue1 = new Hashtable<String,Object>();
+//		ftblColNameValue1.put("ID", 1);
+//		ftblColNameValue1.put("Name", "Media Engineering and Technology");
+//		myDB.insertIntoTable("Faculty", ftblColNameValue1);
+//
+//		Hashtable<String,Object> ftblColNameValue2 = new Hashtable<String,Object>();
+//		ftblColNameValue2.put("ID", 2);
+//		ftblColNameValue2.put("Name", "Management Technology");
+//		myDB.insertIntoTable("Faculty", ftblColNameValue2);
+//
+//		for(int i=1;i<1000;i++)
+//		{
+//			Hashtable<String,Object> ftblColNameValueI = new Hashtable<String,Object>();
+//			ftblColNameValueI.put("ID", i+2);
+//			ftblColNameValueI.put("Name", "f"+(i+2));
+//			myDB.insertIntoTable("Faculty", ftblColNameValueI);
+//		}
+//
+////		9. Insert in table "Major"
+//		Hashtable<String,Object> mtblColNameValue1 = new Hashtable<String,Object>();
+//		mtblColNameValue1.put("ID", 1);
+//		mtblColNameValue1.put("Name", "Computer Science & Engineering");
+//		mtblColNameValue1.put("Faculty_ID", 1);
+//		myDB.insertIntoTable("Major", mtblColNameValue1);
+//
+//		Hashtable<String,Object> mtblColNameValue2 = new Hashtable<String,Object>();
+//		mtblColNameValue2.put("ID", 2);
+//		mtblColNameValue2.put("Name", "Business Informatics");
+//		mtblColNameValue2.put("Faculty_ID", 2);
+//		myDB.insertIntoTable("Major", mtblColNameValue2);
+//
+//		for(int i=1;i<1000;i++)
+//		{
+//			Hashtable<String,Object> mtblColNameValueI = new Hashtable<String,Object>();
+//			mtblColNameValueI.put("ID", i+2);
+//			mtblColNameValueI.put("Name", "m"+(i+2));
+//			mtblColNameValueI.put("Faculty_ID", rand.nextInt(1001) + 1);
+//			myDB.insertIntoTable("Major", mtblColNameValueI);
+//		}
+//
+//
+////		10. Insert in table "Course"
+//		Hashtable<String,Object> ctblColNameValue1 = new Hashtable<String,Object>();
+//		ctblColNameValue1.put("ID", Integer.valueOf( "1" ) );
+//		ctblColNameValue1.put("Name", "Data Bases II");
+//		ctblColNameValue1.put("Code", "CSEN 604");
+//		ctblColNameValue1.put("Hours", rand.nextInt(7) + 2);
+//		ctblColNameValue1.put("Semester", rand.nextInt(10) + 1);
+//		ctblColNameValue1.put("Major_ID", rand.nextInt(1001) + 1);		
+//		myDB.insertIntoTable("Course", ctblColNameValue1);
+//
+//		for(int i=1;i<1000;i++)
+//		{
+//			Hashtable<String,Object> ctblColNameValueI = new Hashtable<String,Object>();
+//			ctblColNameValueI.put("ID", i+2);
+//			ctblColNameValueI.put("Name", "c"+(i+2));
+//			ctblColNameValueI.put("Code", "co "+(i+2));
+//			ctblColNameValueI.put("Hours", rand.nextInt(7) + 2);
+//			ctblColNameValueI.put("Semester", rand.nextInt(10) + 1);
+//			ctblColNameValueI.put("Major_ID", rand.nextInt(1001) + 1);
+//			myDB.insertIntoTable("Course", ctblColNameValueI);
+//		}
 
 //		11. Insert in table "Student"
 		for(int i=0;i<1000;i++)
@@ -170,6 +170,18 @@ public class DBAppTest {
 		long startTime = System.currentTimeMillis();
 		Iterator<Record> myIt = myDB.selectFromTable("Student", stblColNameValue,"AND");
 		long endTime   = System.currentTimeMillis();
+		System.out.printf("Time for query = %d ms\n", endTime - startTime);
+		myDB.printResult(myIt, "Student");
+		System.out.println("---------------------------------------------------------");
+		
+
+//		12. Select with one condition (using index)
+		myDB.createIndex("Student", "Age");
+		stblColNameValue = new Hashtable<String,Object>();
+		stblColNameValue.put("Age", rand.nextInt(5) + 18);
+		startTime = System.currentTimeMillis();
+		myIt = myDB.selectFromTable("Student", stblColNameValue,"AND");
+		endTime   = System.currentTimeMillis();
 		System.out.printf("Time for query = %d ms\n", endTime - startTime);
 		myDB.printResult(myIt, "Student");
 		System.out.println("---------------------------------------------------------");

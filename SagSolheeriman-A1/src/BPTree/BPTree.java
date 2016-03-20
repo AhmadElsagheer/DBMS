@@ -35,7 +35,6 @@ public class BPTree<T extends Comparable<T>> implements Serializable{
 		if(pushUp != null)
 		{
 			BPTreeInnerNode<T> newRoot = new BPTreeInnerNode<T>(order);
-			System.out.println("Testing creating new root: " + pushUp.key);
 			newRoot.insertLeftAt(0, pushUp.key, root);
 			newRoot.setChild(1, pushUp.newNode);
 			root.setRoot(false);

@@ -308,15 +308,18 @@ public class DBApp {
     	return table;
     }
 
+    /**
+     * Create a new index on the passed column of the specified table
+     * @param strTableName the table to create an index for
+     * @param strColName the column to build index on
+     * @throws DBEngineException if the creation of index failed due to errors with the table
+     * @throws IOException If an I/O error occurred 
+     * @throws ClassNotFoundException  If an error occurred in the stored table file 
+     * @throws FileNotFoundException If an error occurred in the stored table file
+     */
     public void createIndex(String strTableName, String strColName)  throws DBEngineException, FileNotFoundException, ClassNotFoundException, IOException
     {
 
-//    	 TODO: 
-//    	1. make an index for the primary key of any table
-//    	2. update the index for any update/delete/insert query
-//    	3. use the index for queries on columns that have this index
-//    	4. save the BPTree on the Hard Disk
-//    	5. max nodes is defined in config file
     	Table table = this.getTable(strTableName);
     	table.createIndex(strColName);
 
