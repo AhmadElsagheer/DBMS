@@ -210,7 +210,13 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>  imp
 			parent.deleteAt(ptr);
 		}
 	}
-
+	
+	/**
+	 * merge the current node with the passed node and pulling the passed key from the parent
+	 * to be inserted with the merged node
+	 * @param parentKey the pulled key from the parent to be inserted in the merged node
+	 * @param foreignNode the node to be merged with the current node
+	 */
 	public void merge(Comparable<T> parentKey, BPTreeInnerNode<T> foreignNode)
 	{
 		this.insertRightAt(numberOfKeys, parentKey, foreignNode.getFirstChild());
@@ -218,6 +224,11 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>  imp
 			this.insertRightAt(numberOfKeys, foreignNode.getKey(i), foreignNode.getChild(i+1));
 	}
 
+	/**
+	 * delete the key at the specified index with the option to delete the right or left pointer
+	 * @param keyIndex the index whose key will be deleted
+	 * @param childPtr 0 for deleting the left pointer and 1 for deleting the right pointer
+	 */
 	public void deleteAt(int keyIndex, int childPtr)	//0 for left and 1 for right
 	{
 		for(int i = keyIndex; i < numberOfKeys - 1; ++i)
@@ -230,12 +241,18 @@ public class BPTreeInnerNode<T extends Comparable<T>> extends BPTreeNode<T>  imp
 		numberOfKeys--;
 	}
 	
+	/**
+	 * searches for the record reference of the specified key
+	 */
 	@Override
 	public Ref search(T key) 
 	{
 		return children[findIndex(key)].search(key);
 	}
-
+	
+	/**
+	 * delete the key at the given index and deleting its right child
+	 */
 	public void deleteAt(int index) 
 	{
 		deleteAt(index, 1);	

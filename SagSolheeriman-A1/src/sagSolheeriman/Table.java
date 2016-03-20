@@ -14,9 +14,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-
-import javax.sound.midi.Synthesizer;
-
 import java.util.Stack;
 
 import BPTree.BPTree;
@@ -460,6 +457,7 @@ public class Table implements Serializable {
 		return answer.listIterator();
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Iterator<Record> selectWithIndex(Hashtable<String, Object> htblColNameValue, boolean operator) throws FileNotFoundException, IOException, ClassNotFoundException{
 		
 		String indexColumn = null;

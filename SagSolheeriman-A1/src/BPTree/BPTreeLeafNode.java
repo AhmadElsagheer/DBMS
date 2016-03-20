@@ -20,36 +20,61 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 
 	}
 	
+	/**
+	 * @return the next leaf node
+	 */
 	public BPTreeLeafNode<T> getNext()
 	{
 		return this.next;
 	}
 	
+	/**
+	 * sets the next leaf node
+	 * @param node the next leaf node
+	 */
 	public void setNext(BPTreeLeafNode<T> node)
 	{
 		this.next = node;
 	}
 	
+	/**
+	 * @param index the index to find its record
+	 * @return the reference of the queried index
+	 */
 	public Ref getRecord(int index) 
 	{
 		return records[index];
 	}
 	
+	/**
+	 * sets the record at the given index with the passed reference
+	 * @param index the index to set the value at
+	 * @param recordReference the reference to the record
+	 */
 	public void setRecord(int index, Ref recordReference) 
 	{
 		records[index] = recordReference;
 	}
-	
+
+	/**
+	 * @return the reference of the last record
+	 */
 	public Ref getFirstRecord()
 	{
 		return records[0];
 	}
 
+	/**
+	 * @return the reference of the last record
+	 */
 	public Ref getLastRecord()
 	{
 		return records[numberOfKeys-1];
 	}
 	
+	/**
+	 * finds the minimum number of keys the current node must hold
+	 */
 	public int minKeys()
 	{
 		if(this.isRoot())
@@ -57,6 +82,9 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		return (order + 1) / 2;
 	}
 	
+	/**
+	 * insert the specified key associated with a given record refernce in the B+ tree
+	 */
 	public PushUp<T> insert(T key, Ref recordReference, BPTreeInnerNode<T> parent, int ptr)
 	{
 		if(this.isFull())
@@ -75,7 +103,12 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		}
 	}
 	
-
+	/**
+	 * inserts the passed key associated with its record reference in the specified index
+	 * @param index the index at which the key will be inserted
+	 * @param key the key to be inserted
+	 * @param recordReference the pointer to the record associated with the key
+	 */
 	private void insertAt(int index, Comparable<T> key, Ref recordReference) 
 	{
 		for (int i = numberOfKeys - 1; i >= index; --i) 
@@ -89,6 +122,12 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		++numberOfKeys;
 	}
 	
+	/**
+	 * splits the current node
+	 * @param key the new key that caused the split
+	 * @param recordReference the reference of the new key
+	 * @return the new node that results from the split
+	 */
 	public BPTreeNode<T> split(T key, Ref recordReference) 
 	{
 		int keyIndex = this.findIndex(key);
@@ -119,6 +158,11 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		return newNode;
 	}
 	
+	/**
+	 * finds the index at which the passed key must be located 
+	 * @param key the key to be checked for its location
+	 * @return the expected index of the key
+	 */
 	public int findIndex(T key) 
 	{
 		for (int i = 0; i < numberOfKeys; ++i) 
@@ -130,6 +174,9 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		return numberOfKeys;
 	}
 
+	/**
+	 * returns the record reference with the passed key and null if does not exist
+	 */
 	@Override
 	public Ref search(T key) 
 	{
@@ -139,6 +186,9 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		return null;
 	}
 	
+	/**
+	 * delete the passed key from the B+ tree
+	 */
 	public boolean delete(T key, BPTreeInnerNode<T> parent, int ptr) 
 	{
 		for(int i = 0; i < numberOfKeys; ++i)
@@ -164,6 +214,10 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		return false;
 	}
 	
+	/**
+	 * delete a key at the specified index of the node
+	 * @param index the index of the key to be deleted
+	 */
 	public void deleteAt(int index)
 	{
 		for(int i = index; i < numberOfKeys - 1; ++i)
@@ -174,6 +228,12 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		numberOfKeys--;
 	}
 	
+	/**
+	 * tries to borrow a key from the left or right sibling
+	 * @param parent the parent of the current node
+	 * @param ptr the index of the parent pointer that points to this node 
+	 * @return true if borrow is done successfully and false otherwise
+	 */
 	public boolean borrow(BPTreeInnerNode<T> parent, int ptr)
 	{
 		//check left sibling
@@ -204,6 +264,11 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		return false;
 	}
 	
+	/**
+	 * merges the current node with its left or right sibling
+	 * @param parent the parent of the current node
+	 * @param ptr the index of the parent pointer that points to this node 
+	 */
 	public void merge(BPTreeInnerNode<T> parent, int ptr)
 	{
 		if(ptr > 0)
@@ -222,6 +287,10 @@ public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> imple
 		}
 	}
 	
+	/**
+	 * merge the current node with the specified node. The foreign node will be deleted
+	 * @param foreignNode the node to be merged with the current node
+	 */
 	public void merge(BPTreeLeafNode<T> foreignNode)
 	{
 		for(int i = 0; i < foreignNode.numberOfKeys; ++i)
