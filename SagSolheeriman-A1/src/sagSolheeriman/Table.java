@@ -219,7 +219,12 @@ public class Table implements Serializable {
 					Ref recordReference = new Ref(index, i);
 					tree.insert((Comparable) r.get(colPos), recordReference);
 				}
+				ois.close();
 		 	}
+		 	
+		 	// save table :
+		 	this.saveTable();
+	
 	  }
 
 	/**
