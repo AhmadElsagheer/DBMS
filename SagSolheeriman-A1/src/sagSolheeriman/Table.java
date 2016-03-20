@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Stack;
+
 import BPTree.BPTree;
 import BPTree.Ref;
 
@@ -273,8 +274,7 @@ public class Table implements Serializable {
 
 	}
 	
-	
-	
+		
 	/**
 	 * Update the record that has the specified primary key with the given set of values
 	 * @param strKey the primary key of the record to be updated
@@ -303,34 +303,42 @@ public class Table implements Serializable {
 		checkForeignKeyes(htblColNameValue);
 		BPTree tree = this.colNameIndex.get(primaryKey);
 		Ref recordReference = tree.search((Comparable) strKey);
-		recordReference.getPage();
-		recordReference.getIndexInPage();
+		if(recordReference == null)
+			return false;
+		int pageNo = recordReference.getPage();
+		int indexInPage = recordReference.getIndexInPage();
 		
 		ObjectInputStream ois;
-		File f = new File(path + tableName + "_" + index+".class");
-//		int primaryKeyIndex = colIndex.get(primaryKey);
-//		ObjectInputStream ois;
-//		for (int index = 0; index <= curPageIndex; index++) {
-//			File f = new File(path + tableName + "_" + index+".class");
-//			
-//	    	ois = new ObjectInputStream(new FileInputStream(f));
-//	    	Page p = (Page) ois.readObject();
-//			for(int i = 0; i < p.size(); ++i)
-//			{
-//				Record r = p.get(i);
-//				if(r != null && r.get(primaryKeyIndex).equals(strKey))
-//				{
-//					for(Entry<String, Object> entry: htblColNameValue.entrySet())
-//						r.addValue(colIndex.get(entry.getKey()), entry.getValue());
-//					r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
-//					p.save();
-//					ois.close();
-//					return true;
-//				}
-//			}
-//			ois.close();
-//		}
-//		return false;
+		File f = new File(path + tableName + "_" + pageNo+".class");
+		ois = new ObjectInputStream(new FileInputStream(f));
+		Page p = (Page) ois.readObject();
+		Record r = p.get(indexInPage);
+		
+		for(Entry <String, Integer> entry : this.colIndex.entrySet())
+		{
+			String colName = entry.getKey();
+			int index = entry.getValue();
+			if(this.colNameIndex.containsKey(colName) && htblColNameValue.containsKey(colName))
+			{
+				 tree = this.colNameIndex.get(colName);
+				 tree.delete((Comparable) r.get(index));
+			}
+		}
+		Ref reference  = new Ref(pageNo, indexInPage);
+		for(Entry<String, Object> entry: htblColNameValue.entrySet())
+		{
+			String colName = entry.getKey();
+			Object colValue = entry.getValue();
+			if(this.colNameIndex.containsKey(colName)){
+				tree = colNameIndex.get(colName);
+				tree.insert((Comparable) colValue, reference);
+			}
+		}
+		
+		this.saveTable();
+		ois.close();
+		
+		return true;
 	}
 
 	/**
@@ -419,8 +427,14 @@ public class Table implements Serializable {
 	 */
 	public Iterator<Record> select(Hashtable<String, Object> htblColNameValue, String strOperator)
 		throws  IOException, ClassNotFoundException {
-
+		
 		boolean isOr = strOperator.equals("OR");
+
+		//try to select using an index if it exists
+		Iterator<Record> itr = selectWithIndex(htblColNameValue, isOr);
+		if(itr != null)
+			return itr;
+		
 		ObjectInputStream ois;
 		LinkedList<Record> answer = new LinkedList<Record>();
 		
@@ -433,12 +447,46 @@ public class Table implements Serializable {
 			{
 				Record r = p.get(i);
 				
-				if(( r != null && (isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r))))
+				if((r != null && (isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r))))
 					answer.add(r);
 			}
 			ois.close();
 		}
 		return answer.listIterator();
+	}
+	
+	public Iterator<Record> selectWithIndex(Hashtable<String, Object> htblColNameValue, boolean operator) throws FileNotFoundException, IOException, ClassNotFoundException{
+		
+		String indexColumn = null;
+		Object indexValue = null;
+		for(Entry<String, Object> entry: htblColNameValue.entrySet())
+			if(colNameIndex.contains(entry.getKey()))
+			{
+				indexColumn = entry.getKey();
+				indexValue = entry.getValue();
+				break;
+			}
+			if(indexColumn == null)
+				return null;
+			LinkedList<Record> answer = new LinkedList<Record>();
+			BPTree tree = colNameIndex.get(indexColumn);
+			Ref recordReference = tree.search((Comparable) indexValue);
+			Record r = fetchRecordByReference(recordReference);
+			if((r != null && (operator && checkOr(htblColNameValue, r) || !operator && checkAND(htblColNameValue, r))))
+				answer.add(r);
+			return answer.listIterator();
+	}
+	
+	public Record fetchRecordByReference(Ref recordReference) throws FileNotFoundException, IOException, ClassNotFoundException{
+		
+		if(recordReference == null)
+			return null;
+		File f = new File(path + tableName + "_" + recordReference.getPage()+".class");
+		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+		Page p = (Page) ois.readObject();
+		Record r = p.get(recordReference.getIndexInPage());
+		ois.close();
+		return r;
 	}
 	
 	/** delete all records from the table that matches the specified column name-value pairs
