@@ -15,6 +15,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
+import BPTree.BPTree;
+import BPTree.Ref;
+
 public class Table implements Serializable {
 
 	/**
@@ -27,6 +30,7 @@ public class Table implements Serializable {
 	private String path, tableName, tableHeader, primaryKey;
 	private Hashtable<String, String> colTypes, colRefs;
 	private Hashtable<String, Integer> colIndex;
+	private Hashtable<String,BPTree> colNameIndex;
 
 	/**
 	 * Create a new table with the specified parameter list
@@ -49,6 +53,7 @@ public class Table implements Serializable {
 		this.maxTuplesPerPage = maxTuplesPerPage;
 		this.curPageIndex = -1;
 		this.numOfColumns =  0;
+		this.colNameIndex = new Hashtable<String,BPTree>();
 		initializeColumnsIndexes();
 		createDirectory();
 		createPage();
@@ -181,6 +186,46 @@ public class Table implements Serializable {
 			}
 		}
 	}
+	
+	
+	 public void createIndex(String strColName)  throws DBEngineException, FileNotFoundException, IOException, ClassNotFoundException {
+		 	String type = colTypes.get(strColName);
+		 	int colPos = colIndex.get(strColName);
+		 	BPTree tree = null;
+		 
+		 	if(type.equals("Integer"))
+		 		tree = new BPTree<Integer>(150);
+		 	if(type.equals("String"))
+		 		tree = new BPTree<String>(150);
+		 	if(type.equals("Date"))
+		 		tree = new BPTree<Date>(150);
+		 	if(type.equals("Double"))
+		 		tree = new BPTree<Double>(150);
+		 	
+		 	colNameIndex.put(strColName, tree);
+		 	
+		 	/**
+		 	 * Insertion using BPTree :
+		 	 */
+			ObjectInputStream ois;
+		 	for (int index = 0; index <= curPageIndex; index++) {
+				File f = new File(path + tableName + "_" + index+".class");
+				
+		    	ois = new ObjectInputStream(new FileInputStream(f));
+		    	Page p = (Page) ois.readObject();
+				for(int i = 0; i < p.size(); ++i)
+				{
+					Record r = p.get(i);
+					Ref recordReference = new Ref(index, i);
+					tree.insert((Comparable) r.get(colPos), recordReference);
+				}
+				ois.close();
+		 	}
+		 	
+		 	// save table :
+		 	this.saveTable();
+	
+	  }
 
 	/**
 	 * @param htblColNameValue
