@@ -1,7 +1,13 @@
 package BPTree;
 
-public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> {
+import java.io.Serializable;
 
+public class BPTreeLeafNode<T extends Comparable<T>> extends BPTreeNode<T> implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Ref[] records;
 	private BPTreeLeafNode<T> next;
 	

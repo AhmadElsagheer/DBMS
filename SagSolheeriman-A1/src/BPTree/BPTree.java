@@ -1,10 +1,15 @@
 package BPTree;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class BPTree<T extends Comparable<T>> {
+public class BPTree<T extends Comparable<T>> implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int order;
 	private BPTreeNode<T> root;
 	

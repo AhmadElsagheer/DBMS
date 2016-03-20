@@ -14,7 +14,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-
+import java.util.Stack;
 import BPTree.BPTree;
 import BPTree.Ref;
 
@@ -30,6 +30,7 @@ public class Table implements Serializable {
 	private String path, tableName, tableHeader, primaryKey;
 	private Hashtable<String, String> colTypes, colRefs;
 	private Hashtable<String, Integer> colIndex;
+	@SuppressWarnings("rawtypes")
 	private Hashtable<String,BPTree> colNameIndex;
 
 	/**
@@ -41,10 +42,13 @@ public class Table implements Serializable {
 	 * @param strKeyColName the primary key of the table
 	 * @param maxTuplesPerPage the maximum number of records a page can hold
 	 * @throws IOException If an I/O error occurred
+	 * @throws DBEngineException 
+	 * @throws ClassNotFoundException 
 	 */
+	@SuppressWarnings("rawtypes")
 	public Table(String path, String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage, int indexOrder) throws IOException{
-		
+            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage, int indexOrder) throws IOException, ClassNotFoundException, DBEngineException{
+
 		this.path = path + strTableName + "/";
 		this.tableName = strTableName;
 		this.primaryKey = strKeyColName;
@@ -55,6 +59,8 @@ public class Table implements Serializable {
 		this.numOfColumns =  0;
 		this.indexOrder = indexOrder;
 		this.colNameIndex = new Hashtable<String,BPTree>();
+	
+		this.createIndex(primaryKey);
 		initializeColumnsIndexes();
 		createDirectory();
 		createPage();
@@ -189,7 +195,8 @@ public class Table implements Serializable {
 	}
 	
 	
-	 public void createIndex(String strColName)  throws DBEngineException, FileNotFoundException, IOException, ClassNotFoundException {
+	 @SuppressWarnings({ "unchecked", "rawtypes" })
+	public void createIndex(String strColName)  throws DBEngineException, FileNotFoundException, IOException, ClassNotFoundException {
 		 	String type = colTypes.get(strColName);
 		 	int colPos = colIndex.get(strColName);
 		 	BPTree tree = null;
@@ -229,6 +236,7 @@ public class Table implements Serializable {
 	 * @throws IOException If an I/O error occurred
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean insert(Hashtable<String, Object> htblColNameValue) throws DBEngineException, ClassNotFoundException, IOException {
 
 //		1. check column names and types
@@ -248,17 +256,24 @@ public class Table implements Serializable {
 
 //		4. add the record
 		Record r = new Record(numOfColumns);
+		Stack<String> indexedCol = new Stack<String>();
 		for (Entry<String, Object> entry : htblColNameValue.entrySet()) 
 		{
 			String colName = entry.getKey();
+			if(colNameIndex.containsKey(colName)) // index on that col.
+				indexedCol.push(colName);
 			Object value = entry.getValue();
 			r.addValue(colIndex.get(colName), value);
 		}
 		r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
-		addRecord(r);
+		Page page = addRecord(r);
+		while(!indexedCol.isEmpty()) 
+			colNameIndex.get(indexedCol.peek()).insert((Comparable) htblColNameValue.get(indexedCol.pop()), new Ref(curPageIndex, page.size()-1)); 
 		return true;
 
 	}
+	
+	
 	
 	/**
 	 * Update the record that has the specified primary key with the given set of values

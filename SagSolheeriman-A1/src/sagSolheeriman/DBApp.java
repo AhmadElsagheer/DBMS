@@ -254,9 +254,10 @@ public class DBApp {
 	 * @param strKeyColName the primary key of the table (only one column)
 	 * @throws DBEngineException If the name, column types or foreign keys are not valid
 	 * @throws IOException If an I/O error occurred 
+	 * @throws ClassNotFoundException 
 	 */
     public void createTable(String strTableName, Hashtable<String,String> htblColNameType, 
-                            Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBEngineException, IOException{
+                            Hashtable<String,String> htblColNameRefs, String strKeyColName)  throws DBEngineException, IOException, ClassNotFoundException{
     	
     	// A.Check constraints
     	
