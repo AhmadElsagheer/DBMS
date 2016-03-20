@@ -14,6 +14,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+
+import javax.sound.midi.Synthesizer;
+
 import java.util.Stack;
 
 import BPTree.BPTree;
@@ -269,7 +272,9 @@ public class Table implements Serializable {
 		r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
 		Page page = addRecord(r);
 		while(!indexedCol.isEmpty()) 
-			colNameIndex.get(indexedCol.peek()).insert((Comparable) htblColNameValue.get(indexedCol.pop()), new Ref(curPageIndex, page.size()-1)); 
+			colNameIndex.get(indexedCol.peek()).insert((Comparable) htblColNameValue.get(indexedCol.pop()), new Ref(curPageIndex, page.size()-1));
+//		System.out.println(colNameIndex.get(primaryKey));
+		this.saveTable();
 		return true;
 
 	}
@@ -434,6 +439,7 @@ public class Table implements Serializable {
 		if(itr != null)
 			return itr;
 		
+		
 		ObjectInputStream ois;
 		LinkedList<Record> answer = new LinkedList<Record>();
 		
@@ -459,14 +465,16 @@ public class Table implements Serializable {
 		String indexColumn = null;
 		Object indexValue = null;
 		for(Entry<String, Object> entry: htblColNameValue.entrySet())
-			if(colNameIndex.contains(entry.getKey()))
+			if(colNameIndex.containsKey(entry.getKey()))
 			{
 				indexColumn = entry.getKey();
 				indexValue = entry.getValue();
 				break;
 			}
+			
 			if(indexColumn == null)
 				return null;
+			
 			LinkedList<Record> answer = new LinkedList<Record>();
 			BPTree tree = colNameIndex.get(indexColumn);
 			Ref recordReference = tree.search((Comparable) indexValue);
@@ -515,6 +523,7 @@ public class Table implements Serializable {
 			}
 				
 		}
+		this.saveTable();
 		return deletedRecords;
 	}
 	
