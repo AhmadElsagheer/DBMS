@@ -14,6 +14,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 import BPTree.BPTree;
 import BPTree.Ref;
@@ -253,16 +254,46 @@ public class Table implements Serializable {
 
 //		4. add the record
 		Record r = new Record(numOfColumns);
+		Stack<String> indexedCol = new Stack<String>();
 		for (Entry<String, Object> entry : htblColNameValue.entrySet()) 
 		{
 			String colName = entry.getKey();
+			if(colNameIndex.containsKey(colName)) // index on that col.
+				indexedCol.push(colName);
 			Object value = entry.getValue();
 			r.addValue(colIndex.get(colName), value);
 		}
 		r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
 		addRecord(r);
+		while(!indexedCol.isEmpty()) 
+			insert(indexedCol.peek(),htblColNameValue.get(indexedCol.pop())); // helper method to handle insertion in BPTree
 		return true;
 
+	}
+	
+	/**
+	 * Helper method to handle insertion in BPTree
+	 * @param colName column name which has BPTree
+	 * @param value value to be inserted in the BPTree
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private void insert(String colName ,Object value) throws FileNotFoundException, IOException, ClassNotFoundException{
+		
+		// 1. get the BPtree on that column.
+		BPTree tree = colNameIndex.get(colName); 
+		// 2. open the page to get the index of the record in the page.
+		File f = new File(path + tableName + "_" + curPageIndex+".class");
+		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+		Page curPage = (Page) ois.readObject();
+		Ref recordReference = new Ref(curPageIndex, curPage.getnElements());
+		tree.insert((Comparable) value, recordReference);
+		// 3. close stream.
+		ois.close();
+		
+		// 4. save the table.
+		this.saveTable();
 	}
 	
 	/**
