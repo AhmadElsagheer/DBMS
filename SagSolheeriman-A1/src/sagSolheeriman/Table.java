@@ -284,6 +284,7 @@ public class Table implements Serializable {
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
 	 * @throws IOException If an I/O error occurred
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean update(Object strKey, Hashtable<String, Object> htblColNameValue) throws DBEngineException, ClassNotFoundException, IOException {
 		
 //		1. check column names and types
@@ -300,30 +301,43 @@ public class Table implements Serializable {
 		
 //		3. check the foreign keys
 		checkForeignKeyes(htblColNameValue);
+		BPTree tree = this.colNameIndex.get(primaryKey);
+		Ref recordReference = tree.search((Comparable) strKey);
+		if(recordReference == null)
+			return false;
+		int pageNo = recordReference.getPage();
+		int indexInPage = recordReference.getIndexInPage();
 		
-		int primaryKeyIndex = colIndex.get(primaryKey);
 		ObjectInputStream ois;
-		for (int index = 0; index <= curPageIndex; index++) {
-			File f = new File(path + tableName + "_" + index+".class");
-			
-	    	ois = new ObjectInputStream(new FileInputStream(f));
-	    	Page p = (Page) ois.readObject();
-			for(int i = 0; i < p.size(); ++i)
+		File f = new File(path + tableName + "_" + pageNo+".class");
+		ois = new ObjectInputStream(new FileInputStream(f));
+		Page p = (Page) ois.readObject();
+		Record r = p.get(indexInPage);
+		
+		for(Entry <String, Integer> entry : this.colIndex.entrySet())
+		{
+			String colName = entry.getKey();
+			int index = entry.getValue();
+			if(this.colNameIndex.containsKey(colName) && htblColNameValue.containsKey(colName))
 			{
-				Record r = p.get(i);
-				if(r != null && r.get(primaryKeyIndex).equals(strKey))
-				{
-					for(Entry<String, Object> entry: htblColNameValue.entrySet())
-						r.addValue(colIndex.get(entry.getKey()), entry.getValue());
-					r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
-					p.save();
-					ois.close();
-					return true;
-				}
+				 tree = this.colNameIndex.get(colName);
+				 tree.delete((Comparable) r.get(index));
 			}
-			ois.close();
 		}
-		return false;
+		for(Entry<String, Object> entry: htblColNameValue.entrySet())
+		{
+			String colName = entry.getKey();
+			Object colValue = entry.getValue();
+			if(this.colNameIndex.containsKey(colName)){
+				tree = colNameIndex.get(colName);
+				tree.insert((Comparable) colValue, recordReference);
+			}
+		}
+		
+		this.saveTable();
+		ois.close();
+		
+		return true;
 	}
 
 	/**
@@ -495,12 +509,28 @@ public class Table implements Serializable {
 				Record r = page.get(i);
 				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r)) {
 					page.removeRecord(i);
+					delete(r);
 					deletedRecords++;
 				}
 			}
 				
 		}
 		return deletedRecords;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void delete(Record record)
+	{
+		for(Entry<String,Integer> entry : this.colIndex.entrySet())
+		{
+			String colName = entry.getKey();
+			int colIndex = entry.getValue();
+			if(this.colNameIndex.containsKey(colName))
+			{
+				BPTree tree = this.colNameIndex.get(colName);
+				tree.delete((Comparable) record.get(colIndex));
+			}
+		}
 	}
 	
 	
