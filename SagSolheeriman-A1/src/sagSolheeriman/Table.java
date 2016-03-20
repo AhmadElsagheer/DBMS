@@ -14,7 +14,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-
+import java.util.Stack;
 import BPTree.BPTree;
 import BPTree.Ref;
 
@@ -41,9 +41,11 @@ public class Table implements Serializable {
 	 * @param strKeyColName the primary key of the table
 	 * @param maxTuplesPerPage the maximum number of records a page can hold
 	 * @throws IOException If an I/O error occurred
+	 * @throws DBEngineException 
+	 * @throws ClassNotFoundException 
 	 */
 	public Table(String path, String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage) throws IOException{
+            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage) throws IOException, ClassNotFoundException, DBEngineException{
 		
 		this.path = path + strTableName + "/";
 		this.tableName = strTableName;
@@ -54,6 +56,9 @@ public class Table implements Serializable {
 		this.curPageIndex = -1;
 		this.numOfColumns =  0;
 		this.colNameIndex = new Hashtable<String,BPTree>();
+		
+		this.createIndex(primaryKey);
+		
 		initializeColumnsIndexes();
 		createDirectory();
 		createPage();
@@ -222,7 +227,6 @@ public class Table implements Serializable {
 				ois.close();
 		 	}
 		 	
-		 	// save table :
 		 	this.saveTable();
 	
 	  }
@@ -253,17 +257,24 @@ public class Table implements Serializable {
 
 //		4. add the record
 		Record r = new Record(numOfColumns);
+		Stack<String> indexedCol = new Stack<String>();
 		for (Entry<String, Object> entry : htblColNameValue.entrySet()) 
 		{
 			String colName = entry.getKey();
+			if(colNameIndex.containsKey(colName)) // index on that col.
+				indexedCol.push(colName);
 			Object value = entry.getValue();
 			r.addValue(colIndex.get(colName), value);
 		}
 		r.addValue(colIndex.get("TouchDate"), (Date) Calendar.getInstance().getTime());
 		addRecord(r);
+		while(!indexedCol.isEmpty()) 
+			insert(indexedCol.peek(),htblColNameValue.get(indexedCol.pop())); 
 		return true;
 
 	}
+	
+	
 	
 	/**
 	 * Update the record that has the specified primary key with the given set of values
