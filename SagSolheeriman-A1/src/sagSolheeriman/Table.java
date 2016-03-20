@@ -455,12 +455,29 @@ public class Table implements Serializable {
 				Record r = page.get(i);
 				if(isOr && checkOr(htblColNameValue, r) || !isOr && checkAND(htblColNameValue, r)) {
 					page.removeRecord(i);
+					delete(r);
 					deletedRecords++;
 				}
 			}
 				
 		}
 		return deletedRecords;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void delete(Record record)
+	{
+		Hashtable<String,Integer> htblColIndex = this.colIndex;
+		for(Entry<String,Integer> entry : htblColIndex.entrySet())
+		{
+			String colName = entry.getKey();
+			int colIndex = entry.getValue();
+			if(this.colNameIndex.containsKey(colName))
+			{
+				BPTree tree = this.colNameIndex.get(colName);
+				tree.delete((Comparable) record.get(colIndex));
+			}
+		}
 	}
 	
 	
