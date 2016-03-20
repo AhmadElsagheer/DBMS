@@ -61,10 +61,10 @@ public class Table implements Serializable {
 		this.indexOrder = indexOrder;
 		this.colNameIndex = new Hashtable<String,BPTree>();
 	
-		this.createIndex(primaryKey);
 		initializeColumnsIndexes();
 		createDirectory();
 		createPage();
+		this.createIndex(primaryKey);
 		saveTable();
 	}
 

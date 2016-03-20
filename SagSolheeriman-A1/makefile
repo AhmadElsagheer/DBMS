@@ -4,12 +4,12 @@
 all: compile-files run-DBAppTest
 
 compile-files:
-	javac src/sagSolheeriman/*.java -d bin/
+	javac src/sagSolheeriman/*.java src/BPTree/*.java -d bin/
 
 run-DBAppTest:
-	java -classpath bin/sagSolheeriman/ DBAppTest
+	java -classpath bin/ sagSolheeriman.DBAppTest
 
 clean:
-	rm -f bin/sagSolheeriman/*.class
+	rm -r bin/
 	rm -r databases
 
