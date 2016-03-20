@@ -275,26 +275,7 @@ public class Table implements Serializable {
 
 	}
 	
-	/**
-	 * Helper method to handle insertion in BPTree
-	 * @param colName column name which has BPTree
-	 * @param value value to be inserted in the BPTree
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	private void insert(String colName ,Object value) throws FileNotFoundException, IOException, ClassNotFoundException{
-		
-		BPTree tree = colNameIndex.get(colName); 
-		File f = new File(path + tableName + "_" + curPageIndex+".class");
-		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
-		Page curPage = (Page) ois.readObject();
-		Ref recordReference = new Ref(curPageIndex, curPage.size());
-		tree.insert((Comparable) value, recordReference);
-		ois.close();
-		
-		this.saveTable();
-	}
+	
 	
 	/**
 	 * Update the record that has the specified primary key with the given set of values
