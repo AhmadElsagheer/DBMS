@@ -37,7 +37,7 @@ public class DBAppTest {
 	{
 		
 //		2. Create a new database
-		myDB.init("University", 200);
+		myDB.init("University", 200, 150);
 
 //		3. Create table "Faculty"
 		Hashtable<String, String> fTblColNameType = new Hashtable<String, String>();

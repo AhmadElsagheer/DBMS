@@ -26,7 +26,7 @@ public class Table implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private int maxTuplesPerPage, curPageIndex, numOfColumns;
+	private int maxTuplesPerPage, indexOrder, curPageIndex, numOfColumns;
 	private String path, tableName, tableHeader, primaryKey;
 	private Hashtable<String, String> colTypes, colRefs;
 	private Hashtable<String, Integer> colIndex;
@@ -43,7 +43,7 @@ public class Table implements Serializable {
 	 * @throws IOException If an I/O error occurred
 	 */
 	public Table(String path, String strTableName, Hashtable<String,String> htblColNameType, 
-            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage) throws IOException{
+            Hashtable<String,String> htblColNameRefs, String strKeyColName, int maxTuplesPerPage, int indexOrder) throws IOException{
 		
 		this.path = path + strTableName + "/";
 		this.tableName = strTableName;
@@ -53,6 +53,7 @@ public class Table implements Serializable {
 		this.maxTuplesPerPage = maxTuplesPerPage;
 		this.curPageIndex = -1;
 		this.numOfColumns =  0;
+		this.indexOrder = indexOrder;
 		this.colNameIndex = new Hashtable<String,BPTree>();
 		initializeColumnsIndexes();
 		createDirectory();
@@ -194,19 +195,16 @@ public class Table implements Serializable {
 		 	BPTree tree = null;
 		 
 		 	if(type.equals("Integer"))
-		 		tree = new BPTree<Integer>(150);
+		 		tree = new BPTree<Integer>(indexOrder);
 		 	if(type.equals("String"))
-		 		tree = new BPTree<String>(150);
+		 		tree = new BPTree<String>(indexOrder);
 		 	if(type.equals("Date"))
-		 		tree = new BPTree<Date>(150);
+		 		tree = new BPTree<Date>(indexOrder);
 		 	if(type.equals("Double"))
-		 		tree = new BPTree<Double>(150);
+		 		tree = new BPTree<Double>(indexOrder);
 		 	
-		 	colNameIndex.put(strColName, tree);
+		 	colNameIndex.put(strColName, tree);	 	
 		 	
-		 	/**
-		 	 * Insertion using BPTree :
-		 	 */
 			ObjectInputStream ois;
 		 	for (int index = 0; index <= curPageIndex; index++) {
 				File f = new File(path + tableName + "_" + index+".class");
@@ -221,10 +219,7 @@ public class Table implements Serializable {
 				}
 				ois.close();
 		 	}
-		 	
-		 	// save table :
 		 	this.saveTable();
-	
 	  }
 
 	/**
@@ -322,7 +317,7 @@ public class Table implements Serializable {
 	 * @throws IOException If an I/O error occurred
 	 * @throws ClassNotFoundException If an error occurred in the stored table pages format
 	 */
-	private void addRecord(Record record) throws IOException, ClassNotFoundException {
+	private Page addRecord(Record record) throws IOException, ClassNotFoundException {
 
 		File f = new File(path + tableName + "_" + curPageIndex+".class");
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
@@ -331,6 +326,7 @@ public class Table implements Serializable {
 			curPage = createPage();
 		curPage.addRecord(record);
 		ois.close();
+		return curPage;
 	}
 	
 	/**
